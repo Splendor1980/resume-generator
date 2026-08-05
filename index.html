@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сайт-генератор резюме — прототипы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEF2E7; --ink:#1E2B22; --ink-soft:#4A5A4E;
+    --coral:#FF6B54; --coral-deep:#E4523C;
+    --paper1:#FFF8EC; --paper2:#FFEFE4; --paper3:#EAF3F6;
+    --line:rgba(30,43,34,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:'Manrope',sans-serif; padding:48px 20px 80px;}
+  .wrap{max-width:760px; margin:0 auto;}
+  .eyebrow{
+    display:inline-block; font-family:'Space Mono',monospace; font-size:12px;
+    letter-spacing:.1em; text-transform:uppercase; background:var(--ink); color:var(--paper1);
+    padding:5px 12px; border-radius:20px;
+  }
+  h1{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:34px; margin:18px 0 8px;}
+  .sub{color:var(--ink-soft); font-size:15px; max-width:520px; line-height:1.5; margin-bottom:36px;}
+  .list{display:flex; flex-direction:column; gap:16px;}
+  a.card{
+    display:block; background:var(--paper1); border:1px solid var(--line); border-radius:10px;
+    padding:20px 22px; text-decoration:none; color:var(--ink); transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .list a:nth-child(2){background:var(--paper2);}
+  .list a:nth-child(3){background:var(--paper3);}
+  a.card:hover{transform:translateY(-2px); box-shadow:0 10px 22px -12px rgba(30,43,34,0.35);}
+  .card .num{font-family:'Space Mono',monospace; font-size:11px; color:var(--coral-deep); margin-bottom:6px;}
+  .card h3{font-family:'Baloo 2',sans-serif; font-size:19px; margin:0 0 6px;}
+  .card p{font-size:13.5px; color:var(--ink-soft); margin:0; line-height:1.5;}
+  footer{margin-top:48px; font-size:12.5px; color:var(--ink-soft); text-align:center;}
+  footer a{color:var(--coral-deep);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="eyebrow">черновики · не финальный продукт</span>
+  <h1>Прототипы сайта-резюме</h1>
+  <p class="sub">Рабочие макеты для обсуждения — тон, механика, дизайн. Каждый — отдельный самодостаточный экран, не связаны между собой напрямую.</p>
+
+  <div class="list">
+    <a class="card" href="prototypes/01-cards-board.html">
+      <div class="num">01 · вдохновение</div>
+      <h3>Лента карточек с фильтром по тегам</h3>
+      <p>Листаешь идеи по хобби/интересам, без опросника на входе — просто вдохновение.</p>
+    </a>
+    <a class="card" href="prototypes/02-builder-split-screen.html">
+      <div class="num">02 · конструктор</div>
+      <h3>Резюме слева + карточки справа</h3>
+      <p>Живая сборка: жмёшь «Добавить в резюме» — черновик заполняется сам, без опросов.</p>
+    </a>
+    <a class="card" href="prototypes/03-template-compact-vs-dense.html">
+      <div class="num">03 · шаблоны</div>
+      <h3>Компактный vs плотный шаблон</h3>
+      <p>Как один и тот же лист адаптируется под короткий и под развёрнутый текст.</p>
+    </a>
+  </div>
+
+  <footer>Данные: <a href="data/ideas.json">ideas.json</a> · <a href="data/about-snippets.json">about-snippets.json</a> · подробности в <a href="README.md">README</a></footer>
+</div>
+</body>
+</html>
