@@ -23,14 +23,19 @@
     .board-pane{order:1;}
   }
 
-  /* LEFT: RESUME — теперь адаптивный (компактный/плотный) */
+  .data-warning{
+    display:none; background:#FFEDEA; border-bottom:1px solid #F3B9AE; color:#8C3225;
+    font-size:13px; padding:10px 20px; text-align:center;
+  }
+  .data-warning.show{display:block;}
+
+  /* LEFT: RESUME */
   .resume-pane{background:linear-gradient(180deg,#E2E9D8,#D8E1CB); padding:24px 14px; position:sticky; top:0; max-height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
   .resume-pane .label{font-family:'Space Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); margin-bottom:10px;}
   .sheet{background:var(--white); border-radius:4px; box-shadow:0 14px 34px -18px rgba(30,43,34,0.45); min-height:480px; overflow:hidden;}
   .sheet .placeholder{color:#B7BFB2; font-style:italic;}
   .label-sm{font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;}
 
-  /* компактный вариант: сайдбар + основная колонка */
   .sheet.compact{display:flex; padding:0;}
   .sheet.compact .side{width:42%; background:var(--paper1); padding:16px 12px; display:flex; flex-direction:column; gap:14px; border-right:1px solid var(--line);}
   .sheet.compact .main{flex:1; padding:16px 14px; display:flex; flex-direction:column; gap:14px;}
@@ -46,7 +51,6 @@
   .check-item{font-size:12px; margin-bottom:6px; display:flex; gap:6px;}
   .footnote{margin-top:auto; padding-top:10px; border-top:1px dashed var(--line); font-size:10.5px; color:var(--ink-soft);}
 
-  /* плотный вариант: единая колонка, больше секций */
   .sheet.dense{display:flex; flex-direction:column; gap:14px; padding:20px 16px;}
   .contacts-row{display:flex; gap:12px; font-size:10.5px; color:var(--ink-soft); margin-top:6px;}
   .block{border-top:1px solid var(--line); padding-top:10px;}
@@ -68,7 +72,6 @@
   .board-header h2{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:24px; margin:14px 0 6px;}
   .board-header p{color:var(--ink-soft); font-size:14px; line-height:1.5; margin:0;}
 
-  /* MODE SWITCHER */
   .mode-switch{display:inline-flex; background:var(--paper1); border:1px solid var(--line); border-radius:999px; padding:4px; margin:18px 0 22px; gap:2px;}
   .mode-btn{font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; padding:9px 18px; border-radius:999px; border:none; background:transparent; color:var(--ink-soft); cursor:pointer; transition:all .15s ease;}
   .mode-btn.active{background:var(--ink); color:#fff;}
@@ -90,6 +93,7 @@
   .add-btn{margin-top:auto; font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; background:var(--ink); color:#fff; border:none; border-radius:6px; padding:9px; cursor:pointer;}
   .add-btn:hover{background:var(--coral-deep);}
   .add-btn.added{background:#7FA37F; cursor:default;}
+  .empty-state{font-size:13.5px; color:var(--ink-soft); padding:20px 0;}
 
   /* MODE B: ROLE PICKER */
   .role-grid{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:26px;}
@@ -103,47 +107,35 @@
   .skill-check.have .box{background:#4E8B4E; border-color:#4E8B4E; color:#fff;}
   .skill-check .txt .sk{font-weight:700; font-size:13.5px;}
   .skill-check .txt .src{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
-  .empty-role{font-size:13.5px; color:var(--ink-soft); padding:20px 0;}
 
-  /* MODE C: AI CHAT */
+  /* MODE C: GUIDED "AI" */
   .chat-wrap{max-width:640px;}
-  .chat-log{display:flex; flex-direction:column; gap:12px; margin-bottom:16px; min-height:200px;}
+  .chat-log{display:flex; flex-direction:column; gap:12px; margin-bottom:16px; min-height:120px;}
   .msg{max-width:80%; padding:11px 15px; border-radius:14px; font-size:13.5px; line-height:1.5;}
   .msg.bot{background:var(--paper1); border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px;}
   .msg.user{background:var(--ink); color:#fff; align-self:flex-end; border-bottom-right-radius:4px;}
-  .chat-input-row{display:flex; gap:8px; margin-bottom:20px;}
+  .chat-input-row{display:flex; gap:8px; margin-bottom:14px;}
   .chat-input-row input{flex:1; font-family:'Manrope',sans-serif; font-size:13.5px; padding:11px 14px; border-radius:10px; border:1px solid var(--line); background:var(--white);}
   .chat-input-row button{font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; background:var(--coral); color:#fff; border:none; border-radius:10px; padding:0 18px; cursor:pointer;}
-  .chat-input-row button:disabled{opacity:0.4; cursor:default;}
-  .quick-replies{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;}
+  .quick-replies{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
   .quick-reply{font-family:'Manrope',sans-serif; font-size:12.5px; background:var(--paper3); border:1px solid var(--line); border-radius:999px; padding:7px 13px; cursor:pointer;}
+  .dontknow-btn{font-family:'Manrope',sans-serif; font-size:12.5px; background:none; border:1px dashed var(--ink-soft); color:var(--ink-soft); border-radius:999px; padding:7px 13px; cursor:pointer; margin-bottom:16px;}
+  .dontknow-btn:hover{border-color:var(--coral-deep); color:var(--coral-deep);}
+  .branch-panel{background:var(--paper3); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:16px;}
+  .branch-hint{font-size:12.5px; color:var(--ink-soft); margin-bottom:10px;}
+  .branch-chips{display:flex; flex-wrap:wrap; gap:7px;}
   .rec-card{background:var(--paper2); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px;}
   .rec-card .sk{font-weight:700; font-size:13.5px; margin-bottom:3px;}
   .rec-card .why{font-size:12.5px; color:var(--ink-soft); margin-bottom:8px;}
   .ai-badge{font-family:'Space Mono',monospace; font-size:10.5px; color:var(--ink-soft); margin-bottom:14px; display:flex; align-items:center; gap:6px;}
   .ai-badge .dot{width:6px; height:6px; border-radius:50%; background:#4E8B4E;}
 
-  /* SETTINGS GEAR + DRAWER (сюда переехало всё "внутреннее": список черновиков и данных) */
-  .gear-btn{
-    position:fixed; top:18px; right:18px; z-index:50;
-    width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
-    background:var(--white); color:var(--ink-soft); font-size:16px; cursor:pointer;
-    box-shadow:0 6px 16px -8px rgba(30,43,34,0.4);
-    display:flex; align-items:center; justify-content:center;
-    transition:transform .15s ease, color .15s ease;
-  }
+  /* GEAR + DRAWER */
+  .gear-btn{position:fixed; top:18px; right:18px; z-index:50; width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--white); color:var(--ink-soft); font-size:16px; cursor:pointer; box-shadow:0 6px 16px -8px rgba(30,43,34,0.4); display:flex; align-items:center; justify-content:center; transition:transform .15s ease, color .15s ease;}
   .gear-btn:hover{transform:rotate(25deg); color:var(--coral-deep);}
-  .drawer-overlay{
-    position:fixed; inset:0; background:rgba(30,43,34,0.4); z-index:99;
-    opacity:0; pointer-events:none; transition:opacity .2s ease;
-  }
+  .drawer-overlay{position:fixed; inset:0; background:rgba(30,43,34,0.4); z-index:99; opacity:0; pointer-events:none; transition:opacity .2s ease;}
   .drawer-overlay.open{opacity:1; pointer-events:auto;}
-  .drawer{
-    position:fixed; top:0; right:0; height:100vh; width:min(340px, 88vw);
-    background:var(--bg); z-index:100; padding:24px 20px;
-    transform:translateX(100%); transition:transform .25s ease;
-    overflow-y:auto; box-shadow:-14px 0 30px -18px rgba(30,43,34,0.5);
-  }
+  .drawer{position:fixed; top:0; right:0; height:100vh; width:min(340px, 88vw); background:var(--bg); z-index:100; padding:24px 20px; transform:translateX(100%); transition:transform .25s ease; overflow-y:auto; box-shadow:-14px 0 30px -18px rgba(30,43,34,0.5);}
   .drawer-overlay.open .drawer{transform:translateX(0);}
   .drawer-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
   .drawer-close{background:none; border:none; font-size:18px; color:var(--ink-soft); cursor:pointer;}
@@ -158,6 +150,10 @@
 </head>
 <body>
 
+<div class="data-warning" id="dataWarning">
+  Не удалось загрузить базу идей (data/ideas.json). Если открыл файл двойным кликом с диска — браузер блокирует такую загрузку. Открой сайт через GitHub Pages или локальный сервер (например, <code>python -m http.server</code> в папке проекта).
+</div>
+
 <button class="gear-btn" id="gearBtn" aria-label="Черновики и данные проекта">⚙</button>
 <div class="drawer-overlay" id="drawerOverlay">
   <div class="drawer">
@@ -171,10 +167,11 @@
       <a class="d-card" href="prototypes/01-cards-board.html">01 · Лента карточек с фильтром по тегам</a>
       <a class="d-card" href="prototypes/02-builder-split-screen.html">02 · Резюме слева + карточки справа (первая версия, статичный шаблон)</a>
       <a class="d-card" href="prototypes/03-template-compact-vs-dense.html">03 · Компактный vs плотный шаблон (статичное сравнение, отсюда взят дизайн)</a>
+      <a class="d-card" href="prototypes/04-mode-switcher.html">04 · Предыдущая версия главной (три режима, статичное резюме, захардкоженные ~20 карточек)</a>
     </div>
     <div class="drawer-foot">
       Данные: <a href="data/ideas.json">ideas.json</a> · <a href="data/about-snippets.json">about-snippets.json</a><br>
-      Промт ИИ-ассистента: <a href="prototypes/05-ai-assistant-system-prompt.md">05-ai-assistant-system-prompt.md</a><br>
+      Промт ИИ-ассистента (на будущее, пока не подключён): <a href="prototypes/05-ai-assistant-system-prompt.md">05-ai-assistant-system-prompt.md</a><br>
       Подробности решений: <a href="README.md">README</a>
     </div>
   </div>
@@ -201,28 +198,27 @@
     <div class="mode-switch">
       <button class="mode-btn active" data-mode="browse">Листай и собирай</button>
       <button class="mode-btn" data-mode="byrole">Навыки под профессию</button>
-      <button class="mode-btn" data-mode="ai">ИИ-ассистент 🔒</button>
+      <button class="mode-btn" data-mode="ai">Помощник-подсказчик</button>
     </div>
 
-    <!-- MODE A -->
     <div id="browseSection">
       <div class="filters" id="filters"></div>
       <div class="board" id="board"></div>
     </div>
 
-    <!-- MODE B -->
     <div id="byRoleSection" style="display:none;">
       <div class="byrole-hint">Выбери профессию — покажем навыки, которые для неё пригодятся. Отметь те, что реально про тебя.</div>
       <div class="role-grid" id="roleGrid"></div>
       <div id="roleResult"></div>
     </div>
 
-    <!-- MODE C: AI -->
     <div id="aiSection" style="display:none;">
-      <div class="ai-badge"><span class="dot"></span>демо-имитация диалога — без реального вызова ИИ</div>
+      <div class="ai-badge"><span class="dot"></span>подсказчик работает локально, по нашей базе — без внешнего ИИ и без затрат на сервер</div>
       <div class="chat-wrap">
         <div class="chat-log" id="chatLog"></div>
         <div class="quick-replies" id="quickReplies"></div>
+        <button class="dontknow-btn" id="dontKnowBtn">🤔 Не знаю, с чего начать — покажи по темам</button>
+        <div class="branch-panel" id="branchPanel" style="display:none;"></div>
         <div class="chat-input-row">
           <input type="text" id="chatInput" placeholder="Напиши ответ...">
           <button id="chatSend">Отправить</button>
@@ -235,32 +231,61 @@
 </div>
 
 <script>
-const items = [
-  {id:"strategy_games",category:"Стратегии и менеджмент-игры",tags:["игры"],skills:["планирование ресурсов","решения под давлением","анализ данных"],roles:["Помощник менеджера в магазине","Администратор игрового клуба"],comment:"хорошо тренирует планирование ресурсов"},
-  {id:"team_shooter",category:"Командные сессионные игры",tags:["игры"],skills:["координация с людьми","быстрая реакция"],roles:["Официант / бариста","Оператор call-центра"],comment:"учит слаженно работать в команде под давлением времени"},
-  {id:"sandbox_building",category:"Игры-конструкторы и открытые миры",tags:["игры"],skills:["проектное мышление","доведение проекта до конца"],roles:["Помощник в кружке робототехники","Junior-стажировка в геймдеве"],comment:"неформальный опыт проектирования систем"},
-  {id:"drone_flying",category:"Управление дроном",tags:["техника","видео"],skills:["пространственное мышление","видеомонтаж"],roles:["Помощник блогера / фотографа","Видеооператор на мероприятиях"],comment:"дефицитный прикладной навык съёмки с воздуха"},
-  {id:"pc_building",category:"Сборка и апгрейд техники",tags:["техника"],skills:["техническая диагностика","умение объяснять просто"],roles:["Консультант в магазине электроники","Техподдержка"],comment:"умение объяснить проблему тому, кто не разбирается"},
-  {id:"medical_series",category:"Медицинские драмы",tags:["сериалы"],skills:["интерес к диагностике и логике","устойчивость к стрессу"],roles:["Волонтёр в больнице","Помощник в аптеке"],comment:"сигнал реального интереса к медицине"},
-  {id:"finance_business_series",category:"Сериалы про бизнес и финансы",tags:["сериалы","финансы"],skills:["интерес к цифрам","бизнес-логика"],roles:["Помощник бухгалтера","Стажёр в банке"],comment:"вы уже понимаете базовые финансовые термины"},
-  {id:"cooking_baking",category:"Готовка и выпечка",tags:["готовка"],skills:["соблюдение рецептуры и таймингов","работа руками"],roles:["Помощник повара / кондитера","Работа в кофейне"],comment:"тренировка технологии и таймингов"},
-  {id:"pets_care",category:"Уход за животными",tags:["животные"],skills:["ответственность","терпение"],roles:["Выгул / передержка животных","Волонтёр в приюте"],comment:"ежедневная ответственность без выходных"},
-  {id:"social_media_admin",category:"Ведение соцсетей",tags:["соцсети"],skills:["копирайтинг","визуальное оформление"],roles:["SMM-ассистент","Помощник блогера"],comment:"привычка регулярно вести канал"},
-  {id:"photo_hobby",category:"Фотография",tags:["фото"],skills:["композиция и свет","внимание к деталям"],roles:["Помощник фотографа","Съёмка товаров для маркетплейсов"],comment:"реальный прикладной навык для продавцов"},
-  {id:"video_editing",category:"Видеомонтаж",tags:["видео"],skills:["чувство ритма","работа с дедлайнами"],roles:["Помощник видеомонтажёра","Фриланс-подработка"],comment:"монтаж сразу монетизируется"},
-  {id:"chess_online",category:"Шахматы",tags:["настолки"],skills:["стратегическое мышление","терпение"],roles:["Вожатый в лагере","Репетитор для младших"],comment:"умение терпеливо объяснять новичкам"},
-  {id:"team_sport",category:"Командный спорт",tags:["спорт"],skills:["дисциплина","работа в команде"],roles:["Ресепшн в фитнес-клубе","Вожатый спортивного лагеря"],comment:"пример дисциплины и работы по расписанию"},
-  {id:"driving_license",category:"Вождение",tags:["вождение"],skills:["ответственность","ориентирование на местности"],roles:["Курьер на авто","Доставка еды"],comment:"прямой пропуск в курьерскую работу"},
-  {id:"babysitting_siblings",category:"Присмотр за младшими",tags:["дети"],skills:["ответственность за другого человека","терпение"],roles:["Няня на неполный день","Вожатый в лагере"],comment:"реальный опыт присмотра за детьми"},
-  {id:"languages_learning",category:"Иностранный язык",tags:["языки"],skills:["самодисциплина обучения","межкультурная коммуникация"],roles:["Помощник гида","Репетитор для начинающих"],comment:"преимущество даже при среднем уровне"},
-  {id:"volunteering",category:"Волонтёрство",tags:["волонтёрство"],skills:["работа в команде с незнакомыми людьми","инициативность"],roles:["Помощник на мероприятиях","Работа в НКО"],comment:"реальный опыт работы, даже без зарплаты"},
-  {id:"student_council",category:"Актив класса / студсовет",tags:["организация"],skills:["организация людей и процессов","публичные выступления"],roles:["Ассистент event-менеджера","Координатор волонтёров"],comment:"полноценный проектный опыт с бюджетом и дедлайнами"},
-  {id:"self_taught_coding",category:"Самостоятельное программирование",tags:["it"],skills:["логическое мышление","самостоятельное решение задач"],roles:["Стажёр-разработчик","Тестировщик-стажёр"],comment:"код — уже готовое портфолио"}
-];
+/* ---------- ЗАГРУЗКА ПОЛНОЙ БАЗЫ ---------- */
+let items = [];
 
-const allTags = [...new Set(items.flatMap(i=>i.tags))].sort();
-const allRoles = [...new Set(items.flatMap(i=>i.roles))].sort();
+async function loadData(){
+  try{
+    const res = await fetch('data/ideas.json');
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    items = json.items || [];
+    if(items.length === 0) throw new Error('Пустая база');
+  } catch(e){
+    console.error('Не удалось загрузить data/ideas.json:', e);
+    document.getElementById('dataWarning').classList.add('show');
+    // маленький аварийный набор, чтобы страница не была совсем пустой
+    items = [
+      {id:"fallback_1", category:"Игры и техника", tags:["игры"], skills:["логическое мышление","терпение"], roles:["Помощник в магазине электроники"], comment:"пример из аварийного набора — основная база не загрузилась"}
+    ];
+  }
+  initAll();
+}
 
+/* ---------- ПОИСК: НОРМАЛИЗАЦИЯ + ТОКЕНИЗАЦИЯ (грубый стемминг для русского) ---------- */
+function stem(w){
+  w = w.toLowerCase();
+  if(w.length <= 4) return w;
+  return w.replace(/(иями|ями|ами|скими|ского|ской|ские|ский|ская|ское|его|ому|ыми|ими|ует|ует|ешь|ете|ают|ют|ла|ло|ли|тся|ться|а|я|ы|и|о|е|у|ю|й|ь)$/, '');
+}
+function tokenize(text){
+  return (text || '')
+    .toLowerCase()
+    .replace(/[^а-яёa-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 2)
+    .map(stem);
+}
+function itemSearchTokens(item){
+  if(item._stemTokens) return item._stemTokens;
+  const raw = [item.category, ...(item.tags||[]), ...(item.skills||[]), ...(item.examples_now||[])].join(' ');
+  item._stemTokens = tokenize(raw);
+  return item._stemTokens;
+}
+function matchItems(text, limit){
+  const queryTokens = new Set(tokenize(text));
+  if(queryTokens.size === 0) return [];
+  const scored = items.map(item=>{
+    const hay = itemSearchTokens(item);
+    let score = 0;
+    hay.forEach(t=>{ if(queryTokens.has(t)) score++; });
+    (item.tags||[]).forEach(tag=>{ if(queryTokens.has(stem(tag))) score += 2; });
+    return {item, score};
+  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+  return scored.slice(0, limit || 3).map(x=>x.item);
+}
+
+/* ---------- DOM refs ---------- */
 const filtersEl = document.getElementById('filters');
 const boardEl = document.getElementById('board');
 const roleGridEl = document.getElementById('roleGrid');
@@ -278,6 +303,8 @@ const chatInput = document.getElementById('chatInput');
 const chatSend = document.getElementById('chatSend');
 const quickReplies = document.getElementById('quickReplies');
 const recBox = document.getElementById('recBox');
+const dontKnowBtn = document.getElementById('dontKnowBtn');
+const branchPanel = document.getElementById('branchPanel');
 const gearBtn = document.getElementById('gearBtn');
 const drawerOverlay = document.getElementById('drawerOverlay');
 const drawerClose = document.getElementById('drawerClose');
@@ -287,7 +314,7 @@ let added = [];
 let activeRole = null;
 let haveSkills = new Set();
 
-/* ---------- SETTINGS DRAWER ---------- */
+/* ---------- DRAWER ---------- */
 gearBtn.addEventListener('click', ()=> drawerOverlay.classList.add('open'));
 drawerClose.addEventListener('click', ()=> drawerOverlay.classList.remove('open'));
 drawerOverlay.addEventListener('click', (e)=>{ if(e.target===drawerOverlay) drawerOverlay.classList.remove('open'); });
@@ -308,8 +335,8 @@ document.querySelectorAll('.mode-btn').forEach(btn=>{
       headerTitle.textContent = 'Выбери профессию — узнай, что для неё уже умеешь';
       headerSub.textContent = 'Обратный способ: не от хобби к роли, а от роли к скрытым навыкам.';
     } else {
-      headerTitle.textContent = 'Поговори с ассистентом — он подскажет то, чего нет в карточках';
-      headerSub.textContent = 'Платный режим: пара наводящих вопросов вместо перебора всех карточек вручную.';
+      headerTitle.textContent = 'Расскажи, чем занимаешься — подскажем, что с этим делать';
+      headerSub.textContent = 'Работает по нашей базе идей локально, без внешнего ИИ.';
       if(!chatStarted) startChat();
     }
   });
@@ -317,6 +344,7 @@ document.querySelectorAll('.mode-btn').forEach(btn=>{
 
 /* ---------- MODE A: BROWSE ---------- */
 function renderFilters(){
+  const allTags = [...new Set(items.flatMap(i=>i.tags||[]))].sort();
   filtersEl.innerHTML = allTags.map(t=>`<button class="chip${active.has(t)?' active':''}" data-tag="${t}">${t}</button>`).join('');
   filtersEl.querySelectorAll('.chip').forEach(chip=>{
     chip.addEventListener('click',()=>{
@@ -328,13 +356,14 @@ function renderFilters(){
 }
 
 function renderBoard(){
-  const filtered = active.size===0 ? items : items.filter(i=>i.tags.some(t=>active.has(t)));
+  const filtered = active.size===0 ? items : items.filter(i=>(i.tags||[]).some(t=>active.has(t)));
+  if(filtered.length===0){ boardEl.innerHTML = `<div class="empty-state">Ничего не нашлось по этим тегам.</div>`; return; }
   boardEl.innerHTML = filtered.map(item=>{
     const isAdded = added.find(a=>a.id===item.id);
     return `<div class="card">
       <h3>${item.category}</h3>
-      <div class="tag-row">${item.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
-      <ul class="roles">${item.roles.map(r=>`<li>${r}</li>`).join('')}</ul>
+      <div class="tag-row">${(item.skills||[]).map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+      <ul class="roles">${(item.roles||[]).map(r=>`<li>${r}</li>`).join('')}</ul>
       <button class="add-btn${isAdded?' added':''}" data-id="${item.id}">${isAdded?'✓ Добавлено':'+ Добавить в резюме'}</button>
     </div>`;
   }).join('');
@@ -349,6 +378,7 @@ function renderBoard(){
 
 /* ---------- MODE B: BY ROLE ---------- */
 function renderRoleGrid(){
+  const allRoles = [...new Set(items.flatMap(i=>i.roles||[]))].sort();
   roleGridEl.innerHTML = allRoles.map(r=>`<button class="role-chip${activeRole===r?' active':''}" data-role="${r}">${r}</button>`).join('');
   roleGridEl.querySelectorAll('.role-chip').forEach(chip=>{
     chip.addEventListener('click',()=>{
@@ -360,15 +390,13 @@ function renderRoleGrid(){
 }
 
 function renderRoleResult(){
-  if(!activeRole){ roleResultEl.innerHTML = `<div class="empty-role">Выбери профессию выше, чтобы увидеть подходящие навыки.</div>`; return; }
-  const matching = items.filter(i=>i.roles.includes(activeRole));
-  if(matching.length===0){ roleResultEl.innerHTML = `<div class="empty-role">Пока нет связок для этой роли.</div>`; return; }
+  if(!activeRole){ roleResultEl.innerHTML = `<div class="empty-state">Выбери профессию выше, чтобы увидеть подходящие навыки.</div>`; return; }
+  const matching = items.filter(i=>(i.roles||[]).includes(activeRole));
+  if(matching.length===0){ roleResultEl.innerHTML = `<div class="empty-state">Пока нет связок для этой роли.</div>`; return; }
 
   const skillMap = new Map();
   matching.forEach(item=>{
-    item.skills.forEach(s=>{
-      if(!skillMap.has(s)) skillMap.set(s, item);
-    });
+    (item.skills||[]).forEach(s=>{ if(!skillMap.has(s)) skillMap.set(s, item); });
   });
 
   roleResultEl.innerHTML = [...skillMap.entries()].map(([skill,srcItem])=>{
@@ -386,93 +414,47 @@ function renderRoleResult(){
     el.addEventListener('click',()=>{
       const skill = el.dataset.skill;
       const srcItem = items.find(i=>i.id===el.dataset.item);
-      if(haveSkills.has(skill)){
-        haveSkills.delete(skill);
-      } else {
-        haveSkills.add(skill);
-        if(!added.find(a=>a.id===srcItem.id)){ added.push(srcItem); updateResume(); }
-      }
+      if(haveSkills.has(skill)){ haveSkills.delete(skill); }
+      else { haveSkills.add(skill); if(!added.find(a=>a.id===srcItem.id)){ added.push(srcItem); updateResume(); } }
       renderRoleResult();
     });
   });
 }
 
-/* ---------- RESUME: адаптивный шаблон (компактный/плотный) ---------- */
+/* ---------- RESUME: адаптивный шаблон ---------- */
 function aboutTextFrom(list){
   return 'Активно интересуюсь: ' + list.map(a=>a.category.toLowerCase()).join(', ') + '. Ищу возможность применить это на практике.';
 }
-
 function renderCompactSheet(){
-  const skills = [...new Set(added.flatMap(a=>a.skills))];
-  const tags = [...new Set(added.flatMap(a=>a.tags))];
-  const roleText = added.length ? added[0].roles[0] : null;
+  const skills = [...new Set(added.flatMap(a=>a.skills||[]))];
+  const tags = [...new Set(added.flatMap(a=>a.tags||[]))];
+  const roleText = added.length ? (added[0].roles||[])[0] : null;
   return `
     <div class="side">
       <div class="avatar">👤</div>
-      <div>
-        <div class="c-name">Имя Фамилия</div>
-        <div class="c-role">${roleText ? roleText : '<span class="placeholder">роль появится ниже</span>'}</div>
-      </div>
-      <div>
-        <div class="label-sm">Контакты</div>
-        <div class="contact-row">✉️ mail@example.com</div>
-        <div class="contact-row">📞 +7 900 000-00-00</div>
-      </div>
-      <div>
-        <div class="label-sm">Навыки</div>
-        ${skills.length ? skills.slice(0,4).map((s,i)=>`<div class="skill-bar-item">${s}<div class="bar"><span style="width:${75+((i*7)%20)}%"></span></div></div>`).join('')
-          : '<span class="placeholder">появятся после выбора идей</span>'}
-      </div>
-      <div>
-        <div class="label-sm">Интересы</div>
-        ${tags.length ? tags.map(t=>`<span class="pill">${t}</span>`).join('') : '<span class="placeholder">пока пусто</span>'}
-      </div>
+      <div><div class="c-name">Имя Фамилия</div><div class="c-role">${roleText ? roleText : '<span class="placeholder">роль появится ниже</span>'}</div></div>
+      <div><div class="label-sm">Контакты</div><div class="contact-row">✉️ mail@example.com</div><div class="contact-row">📞 +7 900 000-00-00</div></div>
+      <div><div class="label-sm">Навыки</div>${skills.length ? skills.slice(0,4).map((s,i)=>`<div class="skill-bar-item">${s}<div class="bar"><span style="width:${75+((i*7)%20)}%"></span></div></div>`).join('') : '<span class="placeholder">появятся после выбора идей</span>'}</div>
+      <div><div class="label-sm">Интересы</div>${tags.length ? tags.map(t=>`<span class="pill">${t}</span>`).join('') : '<span class="placeholder">пока пусто</span>'}</div>
     </div>
     <div class="main">
-      <div>
-        <div class="label-sm">О себе</div>
-        <div class="c-text">${added.length ? aboutTextFrom(added) : '<span class="placeholder">пара строк появится автоматически</span>'}</div>
-      </div>
-      <div>
-        <div class="label-sm">Что предлагаю</div>
-        ${added.length ? added.map(a=>`<div class="check-item">✓ ${a.comment}</div>`).join('') : '<span class="placeholder">выбери идею слева</span>'}
-      </div>
-      <div>
-        <div class="label-sm">Образование</div>
-        <div class="c-text">Школа / колледж / вуз, год</div>
-      </div>
+      <div><div class="label-sm">О себе</div><div class="c-text">${added.length ? aboutTextFrom(added) : '<span class="placeholder">пара строк появится автоматически</span>'}</div></div>
+      <div><div class="label-sm">Что предлагаю</div>${added.length ? added.map(a=>`<div class="check-item">✓ ${a.comment}</div>`).join('') : '<span class="placeholder">выбери идею слева</span>'}</div>
+      <div><div class="label-sm">Образование</div><div class="c-text">Школа / колледж / вуз, год</div></div>
       <div class="footnote">Мало контента — компенсируем сайдбаром и воздухом</div>
     </div>`;
 }
-
 function renderDenseSheet(){
-  const roleText = added[0].roles[0];
+  const roleText = (added[0].roles||[])[0];
   return `
-    <div>
-      <div class="c-name">Имя Фамилия</div>
-      <div class="c-role">${roleText}</div>
-      <div class="contacts-row"><span>✉️ mail@example.com</span><span>📞 +7 900 000-00-00</span></div>
-    </div>
-    <div class="block">
-      <div class="label-sm">О себе</div>
-      <div class="c-text">${aboutTextFrom(added)}</div>
-    </div>
-    <div class="block">
-      <div class="label-sm">Проектный опыт</div>
-      ${added.map(a=>`<div class="proj"><div class="t">${a.category}</div><div class="d">${a.comment}</div></div>`).join('')}
-    </div>
+    <div><div class="c-name">Имя Фамилия</div><div class="c-role">${roleText}</div><div class="contacts-row"><span>✉️ mail@example.com</span><span>📞 +7 900 000-00-00</span></div></div>
+    <div class="block"><div class="label-sm">О себе</div><div class="c-text">${aboutTextFrom(added)}</div></div>
+    <div class="block"><div class="label-sm">Проектный опыт</div>${added.map(a=>`<div class="proj"><div class="t">${a.category}</div><div class="d">${a.comment}</div></div>`).join('')}</div>
     <div class="block two-col">
-      <div>
-        <div class="label-sm">Навыки</div>
-        ${[...new Set(added.flatMap(a=>a.skills))].map(s=>`<span class="tag">${s}</span>`).join('')}
-      </div>
-      <div>
-        <div class="label-sm">Образование</div>
-        <div class="c-text">Школа / колледж / вуз, год</div>
-      </div>
+      <div><div class="label-sm">Навыки</div>${[...new Set(added.flatMap(a=>a.skills||[]))].map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+      <div><div class="label-sm">Образование</div><div class="c-text">Школа / колледж / вуз, год</div></div>
     </div>`;
 }
-
 function updateResume(){
   counterEl.textContent = `Добавлено идей: ${added.length}`;
   const isCompact = added.length < 2;
@@ -481,7 +463,7 @@ function updateResume(){
   ctaLock.classList.toggle('ready', added.length>=2);
 }
 
-/* ---------- MODE C: AI CHAT (демо, без реального вызова API) ---------- */
+/* ---------- MODE C: ПОДСКАЗЧИК (локальный, без внешнего ИИ) ---------- */
 let chatStarted = false;
 let chatStep = 0;
 
@@ -495,7 +477,7 @@ function addMsg(text, who){
 
 function startChat(){
   chatStarted = true;
-  addMsg('Привет! Я помогу найти то, что не попалось среди готовых карточек. Расскажи — чем ты обычно занимаешься в свободное время?', 'bot');
+  addMsg('Привет! Расскажи — чем ты обычно занимаешься в свободное время? Игры, сериалы, спорт, что мастеришь руками — что угодно.', 'bot');
   quickReplies.innerHTML = ['Играю в игры','Смотрю сериалы','Занимаюсь спортом','Что-то мастерю руками'].map(q=>`<span class="quick-reply">${q}</span>`).join('');
   bindQuickReplies();
   chatStep = 1;
@@ -512,44 +494,59 @@ function handleUserMessage(text){
   addMsg(text, 'user');
   chatInput.value = '';
   quickReplies.innerHTML = '';
+  branchPanel.style.display = 'none';
 
   setTimeout(()=>{
     if(chatStep === 1){
       addMsg('Понял. А можешь чуть конкретнее — во что именно играешь, что смотришь или чем занимаешься руками? Любая деталь поможет.', 'bot');
       chatStep = 2;
-    } else if(chatStep === 2){
-      const found = matchItems(text);
+    } else if(chatStep === 2 || chatStep === 3){
+      const found = matchItems(text, 3);
       if(found.length > 0){
-        addMsg('О, кажется, нашёл кое-что подходящее — смотри:', 'bot');
+        addMsg('Смотри, что нашлось по нашей базе — может, что-то откликнется:', 'bot');
         renderRecommendations(found);
       } else {
-        addMsg('Хм, пока не нашёл точного совпадения в базе — но это нормально, в реальной версии здесь бы подключился живой ИИ и предложил формулировку с нуля, а не только из готовых карточек.', 'bot');
+        addMsg('Пока не нашёл точного совпадения в базе по этим словам. Попробуй описать иначе, или нажми кнопку ниже — покажу по темам.', 'bot');
       }
       chatStep = 3;
     } else {
-      addMsg('Если что-то из рекомендаций подошло — жми «Добавить в резюме» под карточкой выше. Можем продолжить, если хочешь копнуть ещё одну тему.', 'bot');
+      addMsg('Если что-то из рекомендаций подошло — жми «Добавить в резюме». Можем продолжить, если хочешь копнуть ещё одну тему.', 'bot');
     }
-  }, 500);
+  }, 400);
 }
 
-function matchItems(text){
-  const lower = text.toLowerCase();
-  const scored = items.map(item=>{
-    const hay = (item.category + ' ' + item.tags.join(' ') + ' ' + item.skills.join(' ')).toLowerCase();
-    let score = 0;
-    item.tags.forEach(t=>{ if(lower.includes(t)) score += 2; });
-    if(hay.split(' ').some(w=> w.length>3 && lower.includes(w))) score += 1;
-    return {item, score};
-  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
-  return scored.slice(0,2).map(x=>x.item);
-}
+/* Ветвящийся режим для тех, кто "не знает, с чего начать" — без свободного текста */
+dontKnowBtn.addEventListener('click', ()=>{
+  if(!chatStarted) startChat();
+  const allTags = [...new Set(items.flatMap(i=>i.tags||[]))].sort();
+  branchPanel.style.display = 'block';
+  branchPanel.innerHTML = `
+    <div class="branch-hint">Выбери тему, которая ближе всего — покажу связанные идеи:</div>
+    <div class="branch-chips" id="branchChips">
+      ${allTags.map(t=>`<button class="chip" data-branch-tag="${t}">${t}</button>`).join('')}
+    </div>`;
+  branchPanel.querySelectorAll('[data-branch-tag]').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const tag = chip.dataset.branchTag;
+      const matching = items.filter(i=>(i.tags||[]).includes(tag)).slice(0,4);
+      addMsg('Тема: ' + tag, 'user');
+      if(matching.length>0){
+        addMsg('Вот что обычно встречается в этой теме:', 'bot');
+        renderRecommendations(matching);
+      } else {
+        addMsg('По этой теме пока пусто в базе.', 'bot');
+      }
+      branchPanel.style.display = 'none';
+    });
+  });
+});
 
 function renderRecommendations(found){
   recBox.innerHTML = found.map(item=>{
     const isAdded = added.find(a=>a.id===item.id);
     return `<div class="rec-card">
       <div class="sk">${item.category}</div>
-      <div class="why">${item.comment} → ${item.roles[0]}</div>
+      <div class="why">${item.comment} → ${(item.roles||[])[0]||''}</div>
       <button class="add-btn${isAdded?' added':''}" data-id="${item.id}" style="width:auto; padding:8px 14px;">${isAdded?'✓ Добавлено':'+ Добавить в резюме'}</button>
     </div>`;
   }).join('');
@@ -564,11 +561,16 @@ function renderRecommendations(found){
 chatSend.addEventListener('click', ()=> handleUserMessage(chatInput.value));
 chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter') handleUserMessage(chatInput.value); });
 
-renderFilters();
-renderBoard();
-renderRoleGrid();
-renderRoleResult();
-updateResume();
+/* ---------- INIT ---------- */
+function initAll(){
+  renderFilters();
+  renderBoard();
+  renderRoleGrid();
+  renderRoleResult();
+  updateResume();
+}
+
+loadData();
 </script>
 </body>
 </html>
