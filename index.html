@@ -16,52 +16,57 @@
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;}
 
-  .layout{display:grid; grid-template-columns: minmax(240px, 300px) 1fr; min-height:100vh;}
-  @media (max-width:560px){
+  /* резюме-колонка увеличена ~в 1.6 раза (было minmax(240,300)) */
+  .layout{display:grid; grid-template-columns: minmax(320px, 480px) 1fr; min-height:100vh;}
+  @media (max-width:760px){
     .layout{grid-template-columns:1fr;}
     .resume-pane{order:2; position:static; max-height:none;}
     .board-pane{order:1;}
   }
 
-  .data-warning{
-    display:none; background:#FFEDEA; border-bottom:1px solid #F3B9AE; color:#8C3225;
-    font-size:13px; padding:10px 20px; text-align:center;
-  }
+  .data-warning{display:none; background:#FFEDEA; border-bottom:1px solid #F3B9AE; color:#8C3225; font-size:13px; padding:10px 20px; text-align:center;}
   .data-warning.show{display:block;}
 
   /* LEFT: RESUME */
-  .resume-pane{background:linear-gradient(180deg,#E2E9D8,#D8E1CB); padding:24px 14px; position:sticky; top:0; max-height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .resume-pane{background:linear-gradient(180deg,#E2E9D8,#D8E1CB); padding:26px 20px; position:sticky; top:0; max-height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
   .resume-pane .label{font-family:'Space Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); margin-bottom:10px;}
-  .sheet{background:var(--white); border-radius:4px; box-shadow:0 14px 34px -18px rgba(30,43,34,0.45); min-height:480px; overflow:hidden;}
+  .sheet{background:var(--white); border-radius:6px; box-shadow:0 14px 34px -18px rgba(30,43,34,0.45); min-height:560px; overflow:hidden;}
   .sheet .placeholder{color:#B7BFB2; font-style:italic;}
-  .label-sm{font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;}
+  .label-sm{font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:7px;}
+
+  /* поля ручного ввода прямо в резюме */
+  .field-input{border:none; border-bottom:1px dashed var(--line); background:transparent; font-family:inherit; color:inherit; width:100%; padding:2px 0 4px; }
+  .field-input:focus{outline:none; border-bottom-color:var(--coral-deep); border-bottom-style:solid;}
+  .field-input::placeholder{color:#B7BFB2; font-style:italic; font-weight:400;}
+  .name-input{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:19px;}
+  .role-input{font-size:13.5px; color:var(--coral-deep); font-weight:700; margin-top:4px;}
+  .small-input{font-size:12px; color:var(--ink-soft);}
 
   .sheet.compact{display:flex; padding:0;}
-  .sheet.compact .side{width:42%; background:var(--paper1); padding:16px 12px; display:flex; flex-direction:column; gap:14px; border-right:1px solid var(--line);}
-  .sheet.compact .main{flex:1; padding:16px 14px; display:flex; flex-direction:column; gap:14px;}
-  .avatar{width:38px;height:38px;border-radius:50%;background:var(--coral);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
-  .c-name{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:16px;}
-  .c-role{font-size:12px; color:var(--coral-deep); font-weight:700; margin-top:2px;}
-  .contact-row{font-size:11px; color:var(--ink-soft); margin-bottom:3px;}
-  .skill-bar-item{font-size:11px; margin-bottom:8px;}
-  .bar{height:4px; background:var(--line); border-radius:2px; margin-top:3px;}
+  .sheet.compact .side{width:42%; background:var(--paper1); padding:20px 16px; display:flex; flex-direction:column; gap:18px; border-right:1px solid var(--line);}
+  .sheet.compact .main{flex:1; padding:20px 18px; display:flex; flex-direction:column; gap:18px;}
+  .avatar{width:44px;height:44px;border-radius:50%;background:var(--coral);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+  .contact-row{margin-bottom:6px;}
+  .skill-bar-item{font-size:12px; margin-bottom:10px;}
+  .bar{height:4px; background:var(--line); border-radius:2px; margin-top:4px;}
   .bar span{display:block; height:100%; background:var(--coral); border-radius:2px;}
-  .pill{font-size:10px; background:var(--paper3); color:var(--coral-deep); padding:3px 7px; border-radius:20px; display:inline-block; margin:0 4px 4px 0;}
-  .c-text{font-size:12.5px; line-height:1.55;}
-  .check-item{font-size:12px; margin-bottom:6px; display:flex; gap:6px;}
-  .footnote{margin-top:auto; padding-top:10px; border-top:1px dashed var(--line); font-size:10.5px; color:var(--ink-soft);}
+  .pill{font-size:11px; background:var(--paper3); color:var(--coral-deep); padding:4px 9px; border-radius:20px; display:inline-block; margin:0 5px 5px 0;}
+  .c-text{font-size:13.5px; line-height:1.6;}
+  .check-item{font-size:13px; margin-bottom:8px; display:flex; gap:7px;}
+  .footnote{margin-top:auto; padding-top:12px; border-top:1px dashed var(--line); font-size:11px; color:var(--ink-soft);}
 
-  .sheet.dense{display:flex; flex-direction:column; gap:14px; padding:20px 16px;}
-  .contacts-row{display:flex; gap:12px; font-size:10.5px; color:var(--ink-soft); margin-top:6px;}
-  .block{border-top:1px solid var(--line); padding-top:10px;}
-  .proj{font-size:12px; margin-bottom:8px;}
+  .sheet.dense{display:flex; flex-direction:column; gap:16px; padding:24px 20px;}
+  .contacts-row{display:flex; gap:14px; margin-top:8px; flex-wrap:wrap;}
+  .contacts-row .field-input{width:auto; min-width:140px;}
+  .block{border-top:1px solid var(--line); padding-top:12px;}
+  .proj{font-size:13px; margin-bottom:10px;}
   .proj .t{font-weight:700;}
-  .proj .d{color:var(--ink-soft); margin-top:1px;}
-  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
-  .tag{font-size:10px; background:var(--paper1); padding:3px 7px; border-radius:5px; display:inline-block; margin:0 4px 4px 0;}
+  .proj .d{color:var(--ink-soft); margin-top:2px;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .tag{font-size:11px; background:var(--paper1); padding:4px 8px; border-radius:5px; display:inline-block; margin:0 5px 5px 0;}
 
-  .counter{margin-top:16px; font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-soft); text-align:center;}
-  .cta-lock{margin-top:14px; background:var(--coral); color:#fff; text-align:center; padding:12px; border-radius:8px; font-weight:700; font-size:14px; opacity:0.45; pointer-events:none; transition:opacity .2s ease;}
+  .counter{margin-top:18px; font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-soft); text-align:center;}
+  .cta-lock{margin-top:14px; background:var(--coral); color:#fff; text-align:center; padding:13px; border-radius:8px; font-weight:700; font-size:14px; opacity:0.45; pointer-events:none; transition:opacity .2s ease;}
   .cta-lock.ready{opacity:1;}
   .cta-lock small{display:block; font-weight:400; font-size:11px; margin-top:3px; opacity:0.9;}
 
@@ -92,10 +97,10 @@
   .roles li::before{content:"→"; position:absolute; left:0; color:var(--coral-deep); font-weight:700;}
   .add-btn{margin-top:auto; font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; background:var(--ink); color:#fff; border:none; border-radius:6px; padding:9px; cursor:pointer;}
   .add-btn:hover{background:var(--coral-deep);}
-  .add-btn.added{background:#7FA37F; cursor:default;}
+  .add-btn.added{background:#7FA37F;}
+  .add-btn.added:hover{background:#C0504A;}
   .empty-state{font-size:13.5px; color:var(--ink-soft); padding:20px 0;}
 
-  /* MODE B: ROLE PICKER */
   .role-grid{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:26px;}
   .role-chip{font-family:'Manrope',sans-serif; font-weight:600; font-size:13.5px; padding:11px 16px; border-radius:10px; background:var(--paper3); border:1px solid var(--line); cursor:pointer; transition:all .15s ease;}
   .role-chip:hover{transform:translateY(-1px);}
@@ -108,7 +113,6 @@
   .skill-check .txt .sk{font-weight:700; font-size:13.5px;}
   .skill-check .txt .src{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
 
-  /* MODE C: GUIDED "AI" */
   .chat-wrap{max-width:640px;}
   .chat-log{display:flex; flex-direction:column; gap:12px; margin-bottom:16px; min-height:120px;}
   .msg{max-width:80%; padding:11px 15px; border-radius:14px; font-size:13.5px; line-height:1.5;}
@@ -130,7 +134,6 @@
   .ai-badge{font-family:'Space Mono',monospace; font-size:10.5px; color:var(--ink-soft); margin-bottom:14px; display:flex; align-items:center; gap:6px;}
   .ai-badge .dot{width:6px; height:6px; border-radius:50%; background:#4E8B4E;}
 
-  /* GEAR + DRAWER */
   .gear-btn{position:fixed; top:18px; right:18px; z-index:50; width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--white); color:var(--ink-soft); font-size:16px; cursor:pointer; box-shadow:0 6px 16px -8px rgba(30,43,34,0.4); display:flex; align-items:center; justify-content:center; transition:transform .15s ease, color .15s ease;}
   .gear-btn:hover{transform:rotate(25deg); color:var(--coral-deep);}
   .drawer-overlay{position:fixed; inset:0; background:rgba(30,43,34,0.4); z-index:99; opacity:0; pointer-events:none; transition:opacity .2s ease;}
@@ -180,7 +183,7 @@
 <div class="layout">
 
   <aside class="resume-pane">
-    <div class="label">Твоё резюме — собирается прямо сейчас</div>
+    <div class="label">Твоё резюме — собирается прямо сейчас (можно редактировать вручную)</div>
     <div class="sheet compact" id="sheetContainer"></div>
     <div class="counter" id="counter">Добавлено идей: 0</div>
     <div class="cta-lock" id="ctaLock">Скачать / редактировать полностью
@@ -244,7 +247,6 @@ async function loadData(){
   } catch(e){
     console.error('Не удалось загрузить data/ideas.json:', e);
     document.getElementById('dataWarning').classList.add('show');
-    // маленький аварийный набор, чтобы страница не была совсем пустой
     items = [
       {id:"fallback_1", category:"Игры и техника", tags:["игры"], skills:["логическое мышление","терпение"], roles:["Помощник в магазине электроники"], comment:"пример из аварийного набора — основная база не загрузилась"}
     ];
@@ -252,19 +254,14 @@ async function loadData(){
   initAll();
 }
 
-/* ---------- ПОИСК: НОРМАЛИЗАЦИЯ + ТОКЕНИЗАЦИЯ (грубый стемминг для русского) ---------- */
+/* ---------- ПОИСК: стемминг + словарь синонимов/жаргона ---------- */
 function stem(w){
   w = w.toLowerCase();
   if(w.length <= 4) return w;
-  return w.replace(/(иями|ями|ами|скими|ского|ской|ские|ский|ская|ское|его|ому|ыми|ими|ует|ует|ешь|ете|ают|ют|ла|ло|ли|тся|ться|а|я|ы|и|о|е|у|ю|й|ь)$/, '');
+  return w.replace(/(иями|ями|ами|скими|ского|ской|ские|ский|ская|ское|его|ому|ыми|ими|ует|ешь|ете|ают|ют|ла|ло|ли|тся|ться|а|я|ы|и|о|е|у|ю|й|ь)$/, '');
 }
 function tokenize(text){
-  return (text || '')
-    .toLowerCase()
-    .replace(/[^а-яёa-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter(w => w.length > 2)
-    .map(stem);
+  return (text || '').toLowerCase().replace(/[^а-яёa-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2).map(stem);
 }
 function itemSearchTokens(item){
   if(item._stemTokens) return item._stemTokens;
@@ -272,14 +269,36 @@ function itemSearchTokens(item){
   item._stemTokens = tokenize(raw);
   return item._stemTokens;
 }
+/* лёгкое расширение "этапа 2": жаргон/сленг/бренды → тег, без ручной разметки всех 103 записей */
+const SYNONYMS = {
+  "катка":"игры","тиммейт":"игры","дота":"игры","dota":"игры","кс":"игры","cs":"игры","валорант":"игры",
+  "шутер":"игры","майнкрафт":"игры","minecraft":"игры","роблокс":"игры","roblox":"игры",
+  "стрим":"видео","стример":"видео","твич":"видео","twitch":"видео","ютуб":"видео","youtube":"видео","блогер":"видео","монтирую":"видео",
+  "аниме":"аниме","манга":"аниме","косплей":"творчество",
+  "кодить":"it","код":"it","программирую":"it","программа":"it","сайт":"it","github":"it",
+  "тренировка":"спорт","качалка":"спорт","зал":"спорт","бег":"спорт","бегаю":"спорт",
+  "рисование":"творчество","рисую":"творчество","арт":"творчество",
+  "готовлю":"готовка","кулинария":"готовка","печь":"готовка","пеку":"готовка",
+  "питомец":"животные","кот":"животные","собака":"животные","кошка":"животные",
+  "путешествия":"путешествия","поездки":"путешествия",
+  "деньги":"финансы","инвестиции":"финансы","акции":"финансы","крипта":"финансы",
+  "английский":"языки","немецкий":"языки","иностранный":"языки",
+  "дрон":"техника","квадрокоптер":"техника","fpv":"техника"
+};
 function matchItems(text, limit){
+  const lower = (text||'').toLowerCase();
   const queryTokens = new Set(tokenize(text));
-  if(queryTokens.size === 0) return [];
+  const bonusTags = new Set();
+  Object.keys(SYNONYMS).forEach(k=>{ if(lower.includes(k)) bonusTags.add(SYNONYMS[k]); });
+  if(queryTokens.size===0 && bonusTags.size===0) return [];
   const scored = items.map(item=>{
     const hay = itemSearchTokens(item);
     let score = 0;
     hay.forEach(t=>{ if(queryTokens.has(t)) score++; });
-    (item.tags||[]).forEach(tag=>{ if(queryTokens.has(stem(tag))) score += 2; });
+    (item.tags||[]).forEach(tag=>{
+      if(queryTokens.has(stem(tag))) score += 2;
+      if(bonusTags.has(tag)) score += 3;
+    });
     return {item, score};
   }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
   return scored.slice(0, limit || 3).map(x=>x.item);
@@ -313,6 +332,8 @@ let active = new Set();
 let added = [];
 let activeRole = null;
 let haveSkills = new Set();
+/* ручные поля резюме — живут отдельно от added, переживают перерисовку шаблона */
+let profile = { name:'', role:'', phone:'', email:'', education:'' };
 
 /* ---------- DRAWER ---------- */
 gearBtn.addEventListener('click', ()=> drawerOverlay.classList.add('open'));
@@ -342,6 +363,14 @@ document.querySelectorAll('.mode-btn').forEach(btn=>{
   });
 });
 
+/* ---------- ОБЩИЙ TOGGLE: добавить/убрать идею из резюме ---------- */
+function toggleAdded(itemId){
+  const idx = added.findIndex(a=>a.id===itemId);
+  if(idx>=0){ added.splice(idx,1); }
+  else { const item = items.find(i=>i.id===itemId); if(item) added.push(item); }
+  updateResume();
+}
+
 /* ---------- MODE A: BROWSE ---------- */
 function renderFilters(){
   const allTags = [...new Set(items.flatMap(i=>i.tags||[]))].sort();
@@ -364,14 +393,15 @@ function renderBoard(){
       <h3>${item.category}</h3>
       <div class="tag-row">${(item.skills||[]).map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
       <ul class="roles">${(item.roles||[]).map(r=>`<li>${r}</li>`).join('')}</ul>
-      <button class="add-btn${isAdded?' added':''}" data-id="${item.id}">${isAdded?'✓ Добавлено':'+ Добавить в резюме'}</button>
+      <button class="add-btn${isAdded?' added':''}" data-id="${item.id}">${isAdded?'✓ Добавлено (нажми, чтобы убрать)':'+ Добавить в резюме'}</button>
     </div>`;
   }).join('');
 
   boardEl.querySelectorAll('.add-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const item = items.find(i=>i.id===btn.dataset.id);
-      if(!added.find(a=>a.id===item.id)){ added.push(item); updateResume(); renderBoard(); renderRoleResult(); }
+      toggleAdded(btn.dataset.id);
+      renderBoard();
+      renderRoleResult();
     });
   });
 }
@@ -395,18 +425,13 @@ function renderRoleResult(){
   if(matching.length===0){ roleResultEl.innerHTML = `<div class="empty-state">Пока нет связок для этой роли.</div>`; return; }
 
   const skillMap = new Map();
-  matching.forEach(item=>{
-    (item.skills||[]).forEach(s=>{ if(!skillMap.has(s)) skillMap.set(s, item); });
-  });
+  matching.forEach(item=>{ (item.skills||[]).forEach(s=>{ if(!skillMap.has(s)) skillMap.set(s, item); }); });
 
   roleResultEl.innerHTML = [...skillMap.entries()].map(([skill,srcItem])=>{
     const isHave = haveSkills.has(skill);
     return `<div class="skill-check${isHave?' have':''}" data-skill="${skill}" data-item="${srcItem.id}">
       <div class="box">${isHave?'✓':''}</div>
-      <div class="txt">
-        <div class="sk">${skill}</div>
-        <div class="src">Обычно есть у тех, кто увлекается: ${srcItem.category.toLowerCase()}</div>
-      </div>
+      <div class="txt"><div class="sk">${skill}</div><div class="src">Обычно есть у тех, кто увлекается: ${srcItem.category.toLowerCase()}</div></div>
     </div>`;
   }).join('');
 
@@ -414,45 +439,73 @@ function renderRoleResult(){
     el.addEventListener('click',()=>{
       const skill = el.dataset.skill;
       const srcItem = items.find(i=>i.id===el.dataset.item);
-      if(haveSkills.has(skill)){ haveSkills.delete(skill); }
-      else { haveSkills.add(skill); if(!added.find(a=>a.id===srcItem.id)){ added.push(srcItem); updateResume(); } }
+      if(haveSkills.has(skill)){
+        haveSkills.delete(skill);
+        const stillNeeded = [...skillMap.entries()].some(([s,it])=> it.id===srcItem.id && haveSkills.has(s));
+        if(!stillNeeded){ const idx = added.findIndex(a=>a.id===srcItem.id); if(idx>=0) added.splice(idx,1); }
+      } else {
+        haveSkills.add(skill);
+        if(!added.find(a=>a.id===srcItem.id)) added.push(srcItem);
+      }
+      updateResume();
       renderRoleResult();
     });
   });
 }
 
-/* ---------- RESUME: адаптивный шаблон ---------- */
+/* ---------- RESUME: адаптивный + редактируемый шаблон ---------- */
 function aboutTextFrom(list){
   return 'Активно интересуюсь: ' + list.map(a=>a.category.toLowerCase()).join(', ') + '. Ищу возможность применить это на практике.';
 }
+function bindProfileInputs(container){
+  container.querySelectorAll('[data-profile-field]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{ profile[inp.dataset.profileField] = inp.value; });
+  });
+}
+function esc(s){ return (s||'').replace(/"/g,'&quot;'); }
+
 function renderCompactSheet(){
   const skills = [...new Set(added.flatMap(a=>a.skills||[]))];
   const tags = [...new Set(added.flatMap(a=>a.tags||[]))];
-  const roleText = added.length ? (added[0].roles||[])[0] : null;
+  const autoRole = added.length ? (added[0].roles||[])[0] : '';
   return `
     <div class="side">
       <div class="avatar">👤</div>
-      <div><div class="c-name">Имя Фамилия</div><div class="c-role">${roleText ? roleText : '<span class="placeholder">роль появится ниже</span>'}</div></div>
-      <div><div class="label-sm">Контакты</div><div class="contact-row">✉️ mail@example.com</div><div class="contact-row">📞 +7 900 000-00-00</div></div>
+      <div>
+        <input class="field-input name-input" data-profile-field="name" placeholder="Имя Фамилия" value="${esc(profile.name)}">
+        <input class="field-input role-input" data-profile-field="role" placeholder="${esc(autoRole || 'На какую роль претендуешь')}" value="${esc(profile.role)}">
+      </div>
+      <div>
+        <div class="label-sm">Контакты</div>
+        <div class="contact-row">✉️ <input class="field-input small-input" data-profile-field="email" placeholder="mail@example.com" value="${esc(profile.email)}"></div>
+        <div class="contact-row">📞 <input class="field-input small-input" data-profile-field="phone" placeholder="+7 900 000-00-00" value="${esc(profile.phone)}"></div>
+      </div>
       <div><div class="label-sm">Навыки</div>${skills.length ? skills.slice(0,4).map((s,i)=>`<div class="skill-bar-item">${s}<div class="bar"><span style="width:${75+((i*7)%20)}%"></span></div></div>`).join('') : '<span class="placeholder">появятся после выбора идей</span>'}</div>
       <div><div class="label-sm">Интересы</div>${tags.length ? tags.map(t=>`<span class="pill">${t}</span>`).join('') : '<span class="placeholder">пока пусто</span>'}</div>
     </div>
     <div class="main">
       <div><div class="label-sm">О себе</div><div class="c-text">${added.length ? aboutTextFrom(added) : '<span class="placeholder">пара строк появится автоматически</span>'}</div></div>
-      <div><div class="label-sm">Что предлагаю</div>${added.length ? added.map(a=>`<div class="check-item">✓ ${a.comment}</div>`).join('') : '<span class="placeholder">выбери идею слева</span>'}</div>
-      <div><div class="label-sm">Образование</div><div class="c-text">Школа / колледж / вуз, год</div></div>
+      <div><div class="label-sm">Что предлагаю</div>${added.length ? added.map(a=>`<div class="check-item">✓ ${(a.skills||[]).join(', ')}</div>`).join('') : '<span class="placeholder">выбери идею слева</span>'}</div>
+      <div><div class="label-sm">Образование</div><input class="field-input c-text" data-profile-field="education" placeholder="Школа / колледж / вуз, год" value="${esc(profile.education)}"></div>
       <div class="footnote">Мало контента — компенсируем сайдбаром и воздухом</div>
     </div>`;
 }
 function renderDenseSheet(){
-  const roleText = (added[0].roles||[])[0];
+  const autoRole = (added[0].roles||[])[0];
   return `
-    <div><div class="c-name">Имя Фамилия</div><div class="c-role">${roleText}</div><div class="contacts-row"><span>✉️ mail@example.com</span><span>📞 +7 900 000-00-00</span></div></div>
+    <div>
+      <input class="field-input name-input" data-profile-field="name" placeholder="Имя Фамилия" value="${esc(profile.name)}">
+      <input class="field-input role-input" data-profile-field="role" placeholder="${esc(autoRole || 'На какую роль претендуешь')}" value="${esc(profile.role)}">
+      <div class="contacts-row">
+        <span>✉️ <input class="field-input small-input" data-profile-field="email" placeholder="mail@example.com" value="${esc(profile.email)}"></span>
+        <span>📞 <input class="field-input small-input" data-profile-field="phone" placeholder="+7 900 000-00-00" value="${esc(profile.phone)}"></span>
+      </div>
+    </div>
     <div class="block"><div class="label-sm">О себе</div><div class="c-text">${aboutTextFrom(added)}</div></div>
-    <div class="block"><div class="label-sm">Проектный опыт</div>${added.map(a=>`<div class="proj"><div class="t">${a.category}</div><div class="d">${a.comment}</div></div>`).join('')}</div>
+    <div class="block"><div class="label-sm">Проектный опыт</div>${added.map(a=>`<div class="proj"><div class="t">${a.category}</div><div class="d">${(a.skills||[]).join(' · ')}</div></div>`).join('')}</div>
     <div class="block two-col">
       <div><div class="label-sm">Навыки</div>${[...new Set(added.flatMap(a=>a.skills||[]))].map(s=>`<span class="tag">${s}</span>`).join('')}</div>
-      <div><div class="label-sm">Образование</div><div class="c-text">Школа / колледж / вуз, год</div></div>
+      <div><div class="label-sm">Образование</div><input class="field-input c-text" data-profile-field="education" placeholder="Школа / колледж / вуз, год" value="${esc(profile.education)}"></div>
     </div>`;
 }
 function updateResume(){
@@ -460,6 +513,7 @@ function updateResume(){
   const isCompact = added.length < 2;
   sheetContainer.className = 'sheet ' + (isCompact ? 'compact' : 'dense');
   sheetContainer.innerHTML = isCompact ? renderCompactSheet() : renderDenseSheet();
+  bindProfileInputs(sheetContainer);
   ctaLock.classList.toggle('ready', added.length>=2);
 }
 
@@ -482,13 +536,9 @@ function startChat(){
   bindQuickReplies();
   chatStep = 1;
 }
-
 function bindQuickReplies(){
-  quickReplies.querySelectorAll('.quick-reply').forEach(el=>{
-    el.addEventListener('click', ()=> handleUserMessage(el.textContent));
-  });
+  quickReplies.querySelectorAll('.quick-reply').forEach(el=>{ el.addEventListener('click', ()=> handleUserMessage(el.textContent)); });
 }
-
 function handleUserMessage(text){
   if(!text.trim()) return;
   addMsg(text, 'user');
@@ -515,27 +565,18 @@ function handleUserMessage(text){
   }, 400);
 }
 
-/* Ветвящийся режим для тех, кто "не знает, с чего начать" — без свободного текста */
 dontKnowBtn.addEventListener('click', ()=>{
   if(!chatStarted) startChat();
   const allTags = [...new Set(items.flatMap(i=>i.tags||[]))].sort();
   branchPanel.style.display = 'block';
-  branchPanel.innerHTML = `
-    <div class="branch-hint">Выбери тему, которая ближе всего — покажу связанные идеи:</div>
-    <div class="branch-chips" id="branchChips">
-      ${allTags.map(t=>`<button class="chip" data-branch-tag="${t}">${t}</button>`).join('')}
-    </div>`;
+  branchPanel.innerHTML = `<div class="branch-hint">Выбери тему, которая ближе всего — покажу связанные идеи:</div><div class="branch-chips" id="branchChips">${allTags.map(t=>`<button class="chip" data-branch-tag="${t}">${t}</button>`).join('')}</div>`;
   branchPanel.querySelectorAll('[data-branch-tag]').forEach(chip=>{
     chip.addEventListener('click', ()=>{
       const tag = chip.dataset.branchTag;
       const matching = items.filter(i=>(i.tags||[]).includes(tag)).slice(0,4);
       addMsg('Тема: ' + tag, 'user');
-      if(matching.length>0){
-        addMsg('Вот что обычно встречается в этой теме:', 'bot');
-        renderRecommendations(matching);
-      } else {
-        addMsg('По этой теме пока пусто в базе.', 'bot');
-      }
+      if(matching.length>0){ addMsg('Вот что обычно встречается в этой теме:', 'bot'); renderRecommendations(matching); }
+      else { addMsg('По этой теме пока пусто в базе.', 'bot'); }
       branchPanel.style.display = 'none';
     });
   });
@@ -547,13 +588,13 @@ function renderRecommendations(found){
     return `<div class="rec-card">
       <div class="sk">${item.category}</div>
       <div class="why">${item.comment} → ${(item.roles||[])[0]||''}</div>
-      <button class="add-btn${isAdded?' added':''}" data-id="${item.id}" style="width:auto; padding:8px 14px;">${isAdded?'✓ Добавлено':'+ Добавить в резюме'}</button>
+      <button class="add-btn${isAdded?' added':''}" data-id="${item.id}" style="width:auto; padding:8px 14px;">${isAdded?'✓ Добавлено (убрать)':'+ Добавить в резюме'}</button>
     </div>`;
   }).join('');
   recBox.querySelectorAll('.add-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const item = items.find(i=>i.id===btn.dataset.id);
-      if(!added.find(a=>a.id===item.id)){ added.push(item); updateResume(); renderRecommendations(found); }
+      toggleAdded(btn.dataset.id);
+      renderRecommendations(found);
     });
   });
 }
@@ -569,7 +610,6 @@ function initAll(){
   renderRoleResult();
   updateResume();
 }
-
 loadData();
 </script>
 </body>
