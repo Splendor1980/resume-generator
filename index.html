@@ -3,71 +3,572 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Сайт-генератор резюме — прототипы</title>
+<title>Конструктор резюме без опыта работы</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#EEF2E7; --ink:#1E2B22; --ink-soft:#4A5A4E;
-    --coral:#FF6B54; --coral-deep:#E4523C;
-    --paper1:#FFF8EC; --paper2:#FFEFE4; --paper3:#EAF3F6;
-    --line:rgba(30,43,34,0.14);
+    --bg: #EEF2E7; --ink: #1E2B22; --ink-soft: #4A5A4E;
+    --coral: #FF6B54; --coral-deep: #E4523C;
+    --paper1: #FFF8EC; --paper2: #FFEFE4; --paper3: #EAF3F6;
+    --line: rgba(30,43,34,0.14); --white: #FFFFFF;
   }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--bg); color:var(--ink); font-family:'Manrope',sans-serif; padding:48px 20px 80px;}
-  .wrap{max-width:760px; margin:0 auto;}
-  .eyebrow{
-    display:inline-block; font-family:'Space Mono',monospace; font-size:12px;
-    letter-spacing:.1em; text-transform:uppercase; background:var(--ink); color:var(--paper1);
-    padding:5px 12px; border-radius:20px;
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;}
+
+  .layout{display:grid; grid-template-columns: minmax(240px, 300px) 1fr; min-height:100vh;}
+  @media (max-width:560px){
+    .layout{grid-template-columns:1fr;}
+    .resume-pane{order:2; position:static; max-height:none;}
+    .board-pane{order:1;}
   }
-  h1{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:34px; margin:18px 0 8px;}
-  .sub{color:var(--ink-soft); font-size:15px; max-width:520px; line-height:1.5; margin-bottom:36px;}
-  .list{display:flex; flex-direction:column; gap:16px;}
-  a.card{
-    display:block; background:var(--paper1); border:1px solid var(--line); border-radius:10px;
-    padding:20px 22px; text-decoration:none; color:var(--ink); transition:transform .12s ease, box-shadow .12s ease;
+
+  /* LEFT: RESUME — теперь адаптивный (компактный/плотный) */
+  .resume-pane{background:linear-gradient(180deg,#E2E9D8,#D8E1CB); padding:24px 14px; position:sticky; top:0; max-height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .resume-pane .label{font-family:'Space Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); margin-bottom:10px;}
+  .sheet{background:var(--white); border-radius:4px; box-shadow:0 14px 34px -18px rgba(30,43,34,0.45); min-height:480px; overflow:hidden;}
+  .sheet .placeholder{color:#B7BFB2; font-style:italic;}
+  .label-sm{font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;}
+
+  /* компактный вариант: сайдбар + основная колонка */
+  .sheet.compact{display:flex; padding:0;}
+  .sheet.compact .side{width:42%; background:var(--paper1); padding:16px 12px; display:flex; flex-direction:column; gap:14px; border-right:1px solid var(--line);}
+  .sheet.compact .main{flex:1; padding:16px 14px; display:flex; flex-direction:column; gap:14px;}
+  .avatar{width:38px;height:38px;border-radius:50%;background:var(--coral);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .c-name{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:16px;}
+  .c-role{font-size:12px; color:var(--coral-deep); font-weight:700; margin-top:2px;}
+  .contact-row{font-size:11px; color:var(--ink-soft); margin-bottom:3px;}
+  .skill-bar-item{font-size:11px; margin-bottom:8px;}
+  .bar{height:4px; background:var(--line); border-radius:2px; margin-top:3px;}
+  .bar span{display:block; height:100%; background:var(--coral); border-radius:2px;}
+  .pill{font-size:10px; background:var(--paper3); color:var(--coral-deep); padding:3px 7px; border-radius:20px; display:inline-block; margin:0 4px 4px 0;}
+  .c-text{font-size:12.5px; line-height:1.55;}
+  .check-item{font-size:12px; margin-bottom:6px; display:flex; gap:6px;}
+  .footnote{margin-top:auto; padding-top:10px; border-top:1px dashed var(--line); font-size:10.5px; color:var(--ink-soft);}
+
+  /* плотный вариант: единая колонка, больше секций */
+  .sheet.dense{display:flex; flex-direction:column; gap:14px; padding:20px 16px;}
+  .contacts-row{display:flex; gap:12px; font-size:10.5px; color:var(--ink-soft); margin-top:6px;}
+  .block{border-top:1px solid var(--line); padding-top:10px;}
+  .proj{font-size:12px; margin-bottom:8px;}
+  .proj .t{font-weight:700;}
+  .proj .d{color:var(--ink-soft); margin-top:1px;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .tag{font-size:10px; background:var(--paper1); padding:3px 7px; border-radius:5px; display:inline-block; margin:0 4px 4px 0;}
+
+  .counter{margin-top:16px; font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-soft); text-align:center;}
+  .cta-lock{margin-top:14px; background:var(--coral); color:#fff; text-align:center; padding:12px; border-radius:8px; font-weight:700; font-size:14px; opacity:0.45; pointer-events:none; transition:opacity .2s ease;}
+  .cta-lock.ready{opacity:1;}
+  .cta-lock small{display:block; font-weight:400; font-size:11px; margin-top:3px; opacity:0.9;}
+
+  /* RIGHT */
+  .board-pane{padding:32px 28px 60px; position:relative;}
+  .board-header{max-width:640px; margin-bottom:18px;}
+  .board-header .eyebrow{font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; background:var(--ink); color:var(--paper1); padding:5px 12px; border-radius:20px; display:inline-block;}
+  .board-header h2{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:24px; margin:14px 0 6px;}
+  .board-header p{color:var(--ink-soft); font-size:14px; line-height:1.5; margin:0;}
+
+  /* MODE SWITCHER */
+  .mode-switch{display:inline-flex; background:var(--paper1); border:1px solid var(--line); border-radius:999px; padding:4px; margin:18px 0 22px; gap:2px;}
+  .mode-btn{font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; padding:9px 18px; border-radius:999px; border:none; background:transparent; color:var(--ink-soft); cursor:pointer; transition:all .15s ease;}
+  .mode-btn.active{background:var(--ink); color:#fff;}
+
+  .filters{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 22px;}
+  .chip{font-family:'Space Mono',monospace; font-size:12.5px; padding:7px 13px; border-radius:999px; border:2px solid var(--ink); background:var(--paper1); cursor:pointer; user-select:none;}
+  .chip.active{background:var(--coral); color:#fff; border-color:var(--coral-deep);}
+
+  .board{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px;}
+  .card{background:var(--paper1); border-radius:6px; padding:18px 16px 16px; box-shadow:0 8px 18px -10px rgba(30,43,34,0.3); border:1px solid var(--line); display:flex; flex-direction:column;}
+  .card:nth-child(3n+2){background:var(--paper2);}
+  .card:nth-child(3n){background:var(--paper3);}
+  .card h3{font-family:'Baloo 2',sans-serif; font-size:16px; margin:0 0 10px; line-height:1.25;}
+  .tag-row{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;}
+  .skill-tag{font-family:'Space Mono',monospace; font-size:10.5px; padding:3px 8px; border-radius:5px; background:rgba(30,43,34,0.07); color:var(--ink-soft);}
+  .roles{font-size:12.5px; margin:0 0 12px; list-style:none; padding:0;}
+  .roles li{padding-left:14px; position:relative; margin-bottom:4px;}
+  .roles li::before{content:"→"; position:absolute; left:0; color:var(--coral-deep); font-weight:700;}
+  .add-btn{margin-top:auto; font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; background:var(--ink); color:#fff; border:none; border-radius:6px; padding:9px; cursor:pointer;}
+  .add-btn:hover{background:var(--coral-deep);}
+  .add-btn.added{background:#7FA37F; cursor:default;}
+
+  /* MODE B: ROLE PICKER */
+  .role-grid{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:26px;}
+  .role-chip{font-family:'Manrope',sans-serif; font-weight:600; font-size:13.5px; padding:11px 16px; border-radius:10px; background:var(--paper3); border:1px solid var(--line); cursor:pointer; transition:all .15s ease;}
+  .role-chip:hover{transform:translateY(-1px);}
+  .role-chip.active{background:var(--ink); color:#fff;}
+  .byrole-hint{font-size:13px; color:var(--ink-soft); margin-bottom:14px;}
+  .skill-check{display:flex; align-items:flex-start; gap:10px; background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:10px; cursor:pointer;}
+  .skill-check.have{background:#EAF3EA; border-color:#B9D8B9;}
+  .skill-check .box{width:18px; height:18px; border-radius:5px; border:2px solid var(--ink-soft); flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;}
+  .skill-check.have .box{background:#4E8B4E; border-color:#4E8B4E; color:#fff;}
+  .skill-check .txt .sk{font-weight:700; font-size:13.5px;}
+  .skill-check .txt .src{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  .empty-role{font-size:13.5px; color:var(--ink-soft); padding:20px 0;}
+
+  /* MODE C: AI CHAT */
+  .chat-wrap{max-width:640px;}
+  .chat-log{display:flex; flex-direction:column; gap:12px; margin-bottom:16px; min-height:200px;}
+  .msg{max-width:80%; padding:11px 15px; border-radius:14px; font-size:13.5px; line-height:1.5;}
+  .msg.bot{background:var(--paper1); border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px;}
+  .msg.user{background:var(--ink); color:#fff; align-self:flex-end; border-bottom-right-radius:4px;}
+  .chat-input-row{display:flex; gap:8px; margin-bottom:20px;}
+  .chat-input-row input{flex:1; font-family:'Manrope',sans-serif; font-size:13.5px; padding:11px 14px; border-radius:10px; border:1px solid var(--line); background:var(--white);}
+  .chat-input-row button{font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; background:var(--coral); color:#fff; border:none; border-radius:10px; padding:0 18px; cursor:pointer;}
+  .chat-input-row button:disabled{opacity:0.4; cursor:default;}
+  .quick-replies{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;}
+  .quick-reply{font-family:'Manrope',sans-serif; font-size:12.5px; background:var(--paper3); border:1px solid var(--line); border-radius:999px; padding:7px 13px; cursor:pointer;}
+  .rec-card{background:var(--paper2); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px;}
+  .rec-card .sk{font-weight:700; font-size:13.5px; margin-bottom:3px;}
+  .rec-card .why{font-size:12.5px; color:var(--ink-soft); margin-bottom:8px;}
+  .ai-badge{font-family:'Space Mono',monospace; font-size:10.5px; color:var(--ink-soft); margin-bottom:14px; display:flex; align-items:center; gap:6px;}
+  .ai-badge .dot{width:6px; height:6px; border-radius:50%; background:#4E8B4E;}
+
+  /* SETTINGS GEAR + DRAWER (сюда переехало всё "внутреннее": список черновиков и данных) */
+  .gear-btn{
+    position:fixed; top:18px; right:18px; z-index:50;
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
+    background:var(--white); color:var(--ink-soft); font-size:16px; cursor:pointer;
+    box-shadow:0 6px 16px -8px rgba(30,43,34,0.4);
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .15s ease, color .15s ease;
   }
-  .list a:nth-child(2){background:var(--paper2);}
-  .list a:nth-child(3){background:var(--paper3);}
-  a.card:hover{transform:translateY(-2px); box-shadow:0 10px 22px -12px rgba(30,43,34,0.35);}
-  .card .num{font-family:'Space Mono',monospace; font-size:11px; color:var(--coral-deep); margin-bottom:6px;}
-  .card h3{font-family:'Baloo 2',sans-serif; font-size:19px; margin:0 0 6px;}
-  .card p{font-size:13.5px; color:var(--ink-soft); margin:0; line-height:1.5;}
-  footer{margin-top:48px; font-size:12.5px; color:var(--ink-soft); text-align:center;}
-  footer a{color:var(--coral-deep);}
+  .gear-btn:hover{transform:rotate(25deg); color:var(--coral-deep);}
+  .drawer-overlay{
+    position:fixed; inset:0; background:rgba(30,43,34,0.4); z-index:99;
+    opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .drawer-overlay.open{opacity:1; pointer-events:auto;}
+  .drawer{
+    position:fixed; top:0; right:0; height:100vh; width:min(340px, 88vw);
+    background:var(--bg); z-index:100; padding:24px 20px;
+    transform:translateX(100%); transition:transform .25s ease;
+    overflow-y:auto; box-shadow:-14px 0 30px -18px rgba(30,43,34,0.5);
+  }
+  .drawer-overlay.open .drawer{transform:translateX(0);}
+  .drawer-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+  .drawer-close{background:none; border:none; font-size:18px; color:var(--ink-soft); cursor:pointer;}
+  .drawer h3{font-family:'Baloo 2',sans-serif; font-size:17px; margin:0 0 6px;}
+  .drawer-sub{font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin-bottom:18px;}
+  .drawer-list{display:flex; flex-direction:column; gap:10px; margin-bottom:22px;}
+  .d-card{display:block; background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:12px 14px; text-decoration:none; color:var(--ink); font-size:13px; line-height:1.4;}
+  .d-card:hover{background:var(--paper2);}
+  .drawer-foot{font-size:11.5px; color:var(--ink-soft); line-height:1.7; border-top:1px solid var(--line); padding-top:14px;}
+  .drawer-foot a{color:var(--coral-deep);}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <span class="eyebrow">черновики · не финальный продукт</span>
-  <h1>Прототипы сайта-резюме</h1>
-  <p class="sub">Рабочие макеты для обсуждения — тон, механика, дизайн. Каждый — отдельный самодостаточный экран, не связаны между собой напрямую.</p>
 
-  <div class="list">
-    <a class="card" href="prototypes/01-cards-board.html">
-      <div class="num">01 · вдохновение</div>
-      <h3>Лента карточек с фильтром по тегам</h3>
-      <p>Листаешь идеи по хобби/интересам, без опросника на входе — просто вдохновение.</p>
-    </a>
-    <a class="card" href="prototypes/02-builder-split-screen.html">
-      <div class="num">02 · конструктор</div>
-      <h3>Резюме слева + карточки справа</h3>
-      <p>Живая сборка: жмёшь «Добавить в резюме» — черновик заполняется сам, без опросов.</p>
-    </a>
-    <a class="card" href="prototypes/03-template-compact-vs-dense.html">
-      <div class="num">03 · шаблоны</div>
-      <h3>Компактный vs плотный шаблон</h3>
-      <p>Как один и тот же лист адаптируется под короткий и под развёрнутый текст.</p>
-    </a>
-    <a class="card" href="prototypes/04-mode-switcher.html">
-      <div class="num">04 · режимы</div>
-      <h3>Единая страница: собирай / профессия / ИИ-ассистент</h3>
-      <p>Три способа найти идеи в одном месте — включая чат-имитацию с ассистентом.</p>
-    </a>
+<button class="gear-btn" id="gearBtn" aria-label="Черновики и данные проекта">⚙</button>
+<div class="drawer-overlay" id="drawerOverlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <span class="eyebrow" style="font-size:10.5px;">внутреннее</span>
+      <button class="drawer-close" id="drawerClose">✕</button>
+    </div>
+    <h3>Черновики и данные</h3>
+    <p class="drawer-sub">Более ранние наброски, оставлены для справки — реальный посетитель сайта их не должен видеть, здесь только для нас.</p>
+    <div class="drawer-list">
+      <a class="d-card" href="prototypes/01-cards-board.html">01 · Лента карточек с фильтром по тегам</a>
+      <a class="d-card" href="prototypes/02-builder-split-screen.html">02 · Резюме слева + карточки справа (первая версия, статичный шаблон)</a>
+      <a class="d-card" href="prototypes/03-template-compact-vs-dense.html">03 · Компактный vs плотный шаблон (статичное сравнение, отсюда взят дизайн)</a>
+    </div>
+    <div class="drawer-foot">
+      Данные: <a href="data/ideas.json">ideas.json</a> · <a href="data/about-snippets.json">about-snippets.json</a><br>
+      Промт ИИ-ассистента: <a href="prototypes/05-ai-assistant-system-prompt.md">05-ai-assistant-system-prompt.md</a><br>
+      Подробности решений: <a href="README.md">README</a>
+    </div>
   </div>
-
-  <footer>Данные: <a href="data/ideas.json">ideas.json</a> · <a href="data/about-snippets.json">about-snippets.json</a> · промт ИИ-ассистента: <a href="prototypes/05-ai-assistant-system-prompt.md">05-ai-assistant-system-prompt.md</a> · подробности в <a href="README.md">README</a></footer>
 </div>
+
+<div class="layout">
+
+  <aside class="resume-pane">
+    <div class="label">Твоё резюме — собирается прямо сейчас</div>
+    <div class="sheet compact" id="sheetContainer"></div>
+    <div class="counter" id="counter">Добавлено идей: 0</div>
+    <div class="cta-lock" id="ctaLock">Скачать / редактировать полностью
+      <small>откроется после 2+ идей — доступно платно, 50 ₽</small>
+    </div>
+  </aside>
+
+  <section class="board-pane">
+    <div class="board-header">
+      <span class="eyebrow">шаг 1 · вдохновение</span>
+      <h2 id="headerTitle">Листай и нажимай «Добавить в резюме»</h2>
+      <p id="headerSub">Резюме слева заполняется само. Ничего не нужно печатать вручную.</p>
+    </div>
+
+    <div class="mode-switch">
+      <button class="mode-btn active" data-mode="browse">Листай и собирай</button>
+      <button class="mode-btn" data-mode="byrole">Навыки под профессию</button>
+      <button class="mode-btn" data-mode="ai">ИИ-ассистент 🔒</button>
+    </div>
+
+    <!-- MODE A -->
+    <div id="browseSection">
+      <div class="filters" id="filters"></div>
+      <div class="board" id="board"></div>
+    </div>
+
+    <!-- MODE B -->
+    <div id="byRoleSection" style="display:none;">
+      <div class="byrole-hint">Выбери профессию — покажем навыки, которые для неё пригодятся. Отметь те, что реально про тебя.</div>
+      <div class="role-grid" id="roleGrid"></div>
+      <div id="roleResult"></div>
+    </div>
+
+    <!-- MODE C: AI -->
+    <div id="aiSection" style="display:none;">
+      <div class="ai-badge"><span class="dot"></span>демо-имитация диалога — без реального вызова ИИ</div>
+      <div class="chat-wrap">
+        <div class="chat-log" id="chatLog"></div>
+        <div class="quick-replies" id="quickReplies"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Напиши ответ...">
+          <button id="chatSend">Отправить</button>
+        </div>
+        <div id="recBox"></div>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<script>
+const items = [
+  {id:"strategy_games",category:"Стратегии и менеджмент-игры",tags:["игры"],skills:["планирование ресурсов","решения под давлением","анализ данных"],roles:["Помощник менеджера в магазине","Администратор игрового клуба"],comment:"хорошо тренирует планирование ресурсов"},
+  {id:"team_shooter",category:"Командные сессионные игры",tags:["игры"],skills:["координация с людьми","быстрая реакция"],roles:["Официант / бариста","Оператор call-центра"],comment:"учит слаженно работать в команде под давлением времени"},
+  {id:"sandbox_building",category:"Игры-конструкторы и открытые миры",tags:["игры"],skills:["проектное мышление","доведение проекта до конца"],roles:["Помощник в кружке робототехники","Junior-стажировка в геймдеве"],comment:"неформальный опыт проектирования систем"},
+  {id:"drone_flying",category:"Управление дроном",tags:["техника","видео"],skills:["пространственное мышление","видеомонтаж"],roles:["Помощник блогера / фотографа","Видеооператор на мероприятиях"],comment:"дефицитный прикладной навык съёмки с воздуха"},
+  {id:"pc_building",category:"Сборка и апгрейд техники",tags:["техника"],skills:["техническая диагностика","умение объяснять просто"],roles:["Консультант в магазине электроники","Техподдержка"],comment:"умение объяснить проблему тому, кто не разбирается"},
+  {id:"medical_series",category:"Медицинские драмы",tags:["сериалы"],skills:["интерес к диагностике и логике","устойчивость к стрессу"],roles:["Волонтёр в больнице","Помощник в аптеке"],comment:"сигнал реального интереса к медицине"},
+  {id:"finance_business_series",category:"Сериалы про бизнес и финансы",tags:["сериалы","финансы"],skills:["интерес к цифрам","бизнес-логика"],roles:["Помощник бухгалтера","Стажёр в банке"],comment:"вы уже понимаете базовые финансовые термины"},
+  {id:"cooking_baking",category:"Готовка и выпечка",tags:["готовка"],skills:["соблюдение рецептуры и таймингов","работа руками"],roles:["Помощник повара / кондитера","Работа в кофейне"],comment:"тренировка технологии и таймингов"},
+  {id:"pets_care",category:"Уход за животными",tags:["животные"],skills:["ответственность","терпение"],roles:["Выгул / передержка животных","Волонтёр в приюте"],comment:"ежедневная ответственность без выходных"},
+  {id:"social_media_admin",category:"Ведение соцсетей",tags:["соцсети"],skills:["копирайтинг","визуальное оформление"],roles:["SMM-ассистент","Помощник блогера"],comment:"привычка регулярно вести канал"},
+  {id:"photo_hobby",category:"Фотография",tags:["фото"],skills:["композиция и свет","внимание к деталям"],roles:["Помощник фотографа","Съёмка товаров для маркетплейсов"],comment:"реальный прикладной навык для продавцов"},
+  {id:"video_editing",category:"Видеомонтаж",tags:["видео"],skills:["чувство ритма","работа с дедлайнами"],roles:["Помощник видеомонтажёра","Фриланс-подработка"],comment:"монтаж сразу монетизируется"},
+  {id:"chess_online",category:"Шахматы",tags:["настолки"],skills:["стратегическое мышление","терпение"],roles:["Вожатый в лагере","Репетитор для младших"],comment:"умение терпеливо объяснять новичкам"},
+  {id:"team_sport",category:"Командный спорт",tags:["спорт"],skills:["дисциплина","работа в команде"],roles:["Ресепшн в фитнес-клубе","Вожатый спортивного лагеря"],comment:"пример дисциплины и работы по расписанию"},
+  {id:"driving_license",category:"Вождение",tags:["вождение"],skills:["ответственность","ориентирование на местности"],roles:["Курьер на авто","Доставка еды"],comment:"прямой пропуск в курьерскую работу"},
+  {id:"babysitting_siblings",category:"Присмотр за младшими",tags:["дети"],skills:["ответственность за другого человека","терпение"],roles:["Няня на неполный день","Вожатый в лагере"],comment:"реальный опыт присмотра за детьми"},
+  {id:"languages_learning",category:"Иностранный язык",tags:["языки"],skills:["самодисциплина обучения","межкультурная коммуникация"],roles:["Помощник гида","Репетитор для начинающих"],comment:"преимущество даже при среднем уровне"},
+  {id:"volunteering",category:"Волонтёрство",tags:["волонтёрство"],skills:["работа в команде с незнакомыми людьми","инициативность"],roles:["Помощник на мероприятиях","Работа в НКО"],comment:"реальный опыт работы, даже без зарплаты"},
+  {id:"student_council",category:"Актив класса / студсовет",tags:["организация"],skills:["организация людей и процессов","публичные выступления"],roles:["Ассистент event-менеджера","Координатор волонтёров"],comment:"полноценный проектный опыт с бюджетом и дедлайнами"},
+  {id:"self_taught_coding",category:"Самостоятельное программирование",tags:["it"],skills:["логическое мышление","самостоятельное решение задач"],roles:["Стажёр-разработчик","Тестировщик-стажёр"],comment:"код — уже готовое портфолио"}
+];
+
+const allTags = [...new Set(items.flatMap(i=>i.tags))].sort();
+const allRoles = [...new Set(items.flatMap(i=>i.roles))].sort();
+
+const filtersEl = document.getElementById('filters');
+const boardEl = document.getElementById('board');
+const roleGridEl = document.getElementById('roleGrid');
+const roleResultEl = document.getElementById('roleResult');
+const sheetContainer = document.getElementById('sheetContainer');
+const counterEl = document.getElementById('counter');
+const ctaLock = document.getElementById('ctaLock');
+const headerTitle = document.getElementById('headerTitle');
+const headerSub = document.getElementById('headerSub');
+const browseSection = document.getElementById('browseSection');
+const byRoleSection = document.getElementById('byRoleSection');
+const aiSection = document.getElementById('aiSection');
+const chatLog = document.getElementById('chatLog');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const quickReplies = document.getElementById('quickReplies');
+const recBox = document.getElementById('recBox');
+const gearBtn = document.getElementById('gearBtn');
+const drawerOverlay = document.getElementById('drawerOverlay');
+const drawerClose = document.getElementById('drawerClose');
+
+let active = new Set();
+let added = [];
+let activeRole = null;
+let haveSkills = new Set();
+
+/* ---------- SETTINGS DRAWER ---------- */
+gearBtn.addEventListener('click', ()=> drawerOverlay.classList.add('open'));
+drawerClose.addEventListener('click', ()=> drawerOverlay.classList.remove('open'));
+drawerOverlay.addEventListener('click', (e)=>{ if(e.target===drawerOverlay) drawerOverlay.classList.remove('open'); });
+
+/* ---------- MODE SWITCH ---------- */
+document.querySelectorAll('.mode-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const mode = btn.dataset.mode;
+    browseSection.style.display = mode==='browse' ? 'block' : 'none';
+    byRoleSection.style.display = mode==='byrole' ? 'block' : 'none';
+    aiSection.style.display = mode==='ai' ? 'block' : 'none';
+    if(mode==='browse'){
+      headerTitle.textContent = 'Листай и нажимай «Добавить в резюме»';
+      headerSub.textContent = 'Резюме слева заполняется само. Ничего не нужно печатать вручную.';
+    } else if(mode==='byrole'){
+      headerTitle.textContent = 'Выбери профессию — узнай, что для неё уже умеешь';
+      headerSub.textContent = 'Обратный способ: не от хобби к роли, а от роли к скрытым навыкам.';
+    } else {
+      headerTitle.textContent = 'Поговори с ассистентом — он подскажет то, чего нет в карточках';
+      headerSub.textContent = 'Платный режим: пара наводящих вопросов вместо перебора всех карточек вручную.';
+      if(!chatStarted) startChat();
+    }
+  });
+});
+
+/* ---------- MODE A: BROWSE ---------- */
+function renderFilters(){
+  filtersEl.innerHTML = allTags.map(t=>`<button class="chip${active.has(t)?' active':''}" data-tag="${t}">${t}</button>`).join('');
+  filtersEl.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      const t = chip.dataset.tag;
+      active.has(t)?active.delete(t):active.add(t);
+      renderFilters(); renderBoard();
+    });
+  });
+}
+
+function renderBoard(){
+  const filtered = active.size===0 ? items : items.filter(i=>i.tags.some(t=>active.has(t)));
+  boardEl.innerHTML = filtered.map(item=>{
+    const isAdded = added.find(a=>a.id===item.id);
+    return `<div class="card">
+      <h3>${item.category}</h3>
+      <div class="tag-row">${item.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+      <ul class="roles">${item.roles.map(r=>`<li>${r}</li>`).join('')}</ul>
+      <button class="add-btn${isAdded?' added':''}" data-id="${item.id}">${isAdded?'✓ Добавлено':'+ Добавить в резюме'}</button>
+    </div>`;
+  }).join('');
+
+  boardEl.querySelectorAll('.add-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const item = items.find(i=>i.id===btn.dataset.id);
+      if(!added.find(a=>a.id===item.id)){ added.push(item); updateResume(); renderBoard(); renderRoleResult(); }
+    });
+  });
+}
+
+/* ---------- MODE B: BY ROLE ---------- */
+function renderRoleGrid(){
+  roleGridEl.innerHTML = allRoles.map(r=>`<button class="role-chip${activeRole===r?' active':''}" data-role="${r}">${r}</button>`).join('');
+  roleGridEl.querySelectorAll('.role-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      activeRole = chip.dataset.role;
+      renderRoleGrid();
+      renderRoleResult();
+    });
+  });
+}
+
+function renderRoleResult(){
+  if(!activeRole){ roleResultEl.innerHTML = `<div class="empty-role">Выбери профессию выше, чтобы увидеть подходящие навыки.</div>`; return; }
+  const matching = items.filter(i=>i.roles.includes(activeRole));
+  if(matching.length===0){ roleResultEl.innerHTML = `<div class="empty-role">Пока нет связок для этой роли.</div>`; return; }
+
+  const skillMap = new Map();
+  matching.forEach(item=>{
+    item.skills.forEach(s=>{
+      if(!skillMap.has(s)) skillMap.set(s, item);
+    });
+  });
+
+  roleResultEl.innerHTML = [...skillMap.entries()].map(([skill,srcItem])=>{
+    const isHave = haveSkills.has(skill);
+    return `<div class="skill-check${isHave?' have':''}" data-skill="${skill}" data-item="${srcItem.id}">
+      <div class="box">${isHave?'✓':''}</div>
+      <div class="txt">
+        <div class="sk">${skill}</div>
+        <div class="src">Обычно есть у тех, кто увлекается: ${srcItem.category.toLowerCase()}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  roleResultEl.querySelectorAll('.skill-check').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const skill = el.dataset.skill;
+      const srcItem = items.find(i=>i.id===el.dataset.item);
+      if(haveSkills.has(skill)){
+        haveSkills.delete(skill);
+      } else {
+        haveSkills.add(skill);
+        if(!added.find(a=>a.id===srcItem.id)){ added.push(srcItem); updateResume(); }
+      }
+      renderRoleResult();
+    });
+  });
+}
+
+/* ---------- RESUME: адаптивный шаблон (компактный/плотный) ---------- */
+function aboutTextFrom(list){
+  return 'Активно интересуюсь: ' + list.map(a=>a.category.toLowerCase()).join(', ') + '. Ищу возможность применить это на практике.';
+}
+
+function renderCompactSheet(){
+  const skills = [...new Set(added.flatMap(a=>a.skills))];
+  const tags = [...new Set(added.flatMap(a=>a.tags))];
+  const roleText = added.length ? added[0].roles[0] : null;
+  return `
+    <div class="side">
+      <div class="avatar">👤</div>
+      <div>
+        <div class="c-name">Имя Фамилия</div>
+        <div class="c-role">${roleText ? roleText : '<span class="placeholder">роль появится ниже</span>'}</div>
+      </div>
+      <div>
+        <div class="label-sm">Контакты</div>
+        <div class="contact-row">✉️ mail@example.com</div>
+        <div class="contact-row">📞 +7 900 000-00-00</div>
+      </div>
+      <div>
+        <div class="label-sm">Навыки</div>
+        ${skills.length ? skills.slice(0,4).map((s,i)=>`<div class="skill-bar-item">${s}<div class="bar"><span style="width:${75+((i*7)%20)}%"></span></div></div>`).join('')
+          : '<span class="placeholder">появятся после выбора идей</span>'}
+      </div>
+      <div>
+        <div class="label-sm">Интересы</div>
+        ${tags.length ? tags.map(t=>`<span class="pill">${t}</span>`).join('') : '<span class="placeholder">пока пусто</span>'}
+      </div>
+    </div>
+    <div class="main">
+      <div>
+        <div class="label-sm">О себе</div>
+        <div class="c-text">${added.length ? aboutTextFrom(added) : '<span class="placeholder">пара строк появится автоматически</span>'}</div>
+      </div>
+      <div>
+        <div class="label-sm">Что предлагаю</div>
+        ${added.length ? added.map(a=>`<div class="check-item">✓ ${a.comment}</div>`).join('') : '<span class="placeholder">выбери идею слева</span>'}
+      </div>
+      <div>
+        <div class="label-sm">Образование</div>
+        <div class="c-text">Школа / колледж / вуз, год</div>
+      </div>
+      <div class="footnote">Мало контента — компенсируем сайдбаром и воздухом</div>
+    </div>`;
+}
+
+function renderDenseSheet(){
+  const roleText = added[0].roles[0];
+  return `
+    <div>
+      <div class="c-name">Имя Фамилия</div>
+      <div class="c-role">${roleText}</div>
+      <div class="contacts-row"><span>✉️ mail@example.com</span><span>📞 +7 900 000-00-00</span></div>
+    </div>
+    <div class="block">
+      <div class="label-sm">О себе</div>
+      <div class="c-text">${aboutTextFrom(added)}</div>
+    </div>
+    <div class="block">
+      <div class="label-sm">Проектный опыт</div>
+      ${added.map(a=>`<div class="proj"><div class="t">${a.category}</div><div class="d">${a.comment}</div></div>`).join('')}
+    </div>
+    <div class="block two-col">
+      <div>
+        <div class="label-sm">Навыки</div>
+        ${[...new Set(added.flatMap(a=>a.skills))].map(s=>`<span class="tag">${s}</span>`).join('')}
+      </div>
+      <div>
+        <div class="label-sm">Образование</div>
+        <div class="c-text">Школа / колледж / вуз, год</div>
+      </div>
+    </div>`;
+}
+
+function updateResume(){
+  counterEl.textContent = `Добавлено идей: ${added.length}`;
+  const isCompact = added.length < 2;
+  sheetContainer.className = 'sheet ' + (isCompact ? 'compact' : 'dense');
+  sheetContainer.innerHTML = isCompact ? renderCompactSheet() : renderDenseSheet();
+  ctaLock.classList.toggle('ready', added.length>=2);
+}
+
+/* ---------- MODE C: AI CHAT (демо, без реального вызова API) ---------- */
+let chatStarted = false;
+let chatStep = 0;
+
+function addMsg(text, who){
+  const m = document.createElement('div');
+  m.className = 'msg ' + who;
+  m.textContent = text;
+  chatLog.appendChild(m);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function startChat(){
+  chatStarted = true;
+  addMsg('Привет! Я помогу найти то, что не попалось среди готовых карточек. Расскажи — чем ты обычно занимаешься в свободное время?', 'bot');
+  quickReplies.innerHTML = ['Играю в игры','Смотрю сериалы','Занимаюсь спортом','Что-то мастерю руками'].map(q=>`<span class="quick-reply">${q}</span>`).join('');
+  bindQuickReplies();
+  chatStep = 1;
+}
+
+function bindQuickReplies(){
+  quickReplies.querySelectorAll('.quick-reply').forEach(el=>{
+    el.addEventListener('click', ()=> handleUserMessage(el.textContent));
+  });
+}
+
+function handleUserMessage(text){
+  if(!text.trim()) return;
+  addMsg(text, 'user');
+  chatInput.value = '';
+  quickReplies.innerHTML = '';
+
+  setTimeout(()=>{
+    if(chatStep === 1){
+      addMsg('Понял. А можешь чуть конкретнее — во что именно играешь, что смотришь или чем занимаешься руками? Любая деталь поможет.', 'bot');
+      chatStep = 2;
+    } else if(chatStep === 2){
+      const found = matchItems(text);
+      if(found.length > 0){
+        addMsg('О, кажется, нашёл кое-что подходящее — смотри:', 'bot');
+        renderRecommendations(found);
+      } else {
+        addMsg('Хм, пока не нашёл точного совпадения в базе — но это нормально, в реальной версии здесь бы подключился живой ИИ и предложил формулировку с нуля, а не только из готовых карточек.', 'bot');
+      }
+      chatStep = 3;
+    } else {
+      addMsg('Если что-то из рекомендаций подошло — жми «Добавить в резюме» под карточкой выше. Можем продолжить, если хочешь копнуть ещё одну тему.', 'bot');
+    }
+  }, 500);
+}
+
+function matchItems(text){
+  const lower = text.toLowerCase();
+  const scored = items.map(item=>{
+    const hay = (item.category + ' ' + item.tags.join(' ') + ' ' + item.skills.join(' ')).toLowerCase();
+    let score = 0;
+    item.tags.forEach(t=>{ if(lower.includes(t)) score += 2; });
+    if(hay.split(' ').some(w=> w.length>3 && lower.includes(w))) score += 1;
+    return {item, score};
+  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+  return scored.slice(0,2).map(x=>x.item);
+}
+
+function renderRecommendations(found){
+  recBox.innerHTML = found.map(item=>{
+    const isAdded = added.find(a=>a.id===item.id);
+    return `<div class="rec-card">
+      <div class="sk">${item.category}</div>
+      <div class="why">${item.comment} → ${item.roles[0]}</div>
+      <button class="add-btn${isAdded?' added':''}" data-id="${item.id}" style="width:auto; padding:8px 14px;">${isAdded?'✓ Добавлено':'+ Добавить в резюме'}</button>
+    </div>`;
+  }).join('');
+  recBox.querySelectorAll('.add-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const item = items.find(i=>i.id===btn.dataset.id);
+      if(!added.find(a=>a.id===item.id)){ added.push(item); updateResume(); renderRecommendations(found); }
+    });
+  });
+}
+
+chatSend.addEventListener('click', ()=> handleUserMessage(chatInput.value));
+chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter') handleUserMessage(chatInput.value); });
+
+renderFilters();
+renderBoard();
+renderRoleGrid();
+renderRoleResult();
+updateResume();
+</script>
 </body>
 </html>
