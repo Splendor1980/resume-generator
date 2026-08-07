@@ -134,6 +134,11 @@
   .ai-badge{font-family:'Space Mono',monospace; font-size:10.5px; color:var(--ink-soft); margin-bottom:14px; display:flex; align-items:center; gap:6px;}
   .ai-badge .dot{width:6px; height:6px; border-radius:50%; background:#4E8B4E;}
 
+  #traitBox{margin-bottom:18px;}
+  .trait-card{background:var(--paper3); border:1px solid var(--line); border-left:3px solid var(--coral); border-radius:8px; padding:13px 15px; margin-bottom:10px;}
+  .trait-label{font-family:'Space Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--coral-deep); margin-bottom:5px; display:flex; align-items:center; gap:5px;}
+  .trait-text{font-size:13px; line-height:1.55; color:var(--ink);}
+
   .gear-btn{position:fixed; top:18px; right:18px; z-index:50; width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--white); color:var(--ink-soft); font-size:16px; cursor:pointer; box-shadow:0 6px 16px -8px rgba(30,43,34,0.4); display:flex; align-items:center; justify-content:center; transition:transform .15s ease, color .15s ease;}
   .gear-btn:hover{transform:rotate(25deg); color:var(--coral-deep);}
   .drawer-overlay{position:fixed; inset:0; background:rgba(30,43,34,0.4); z-index:99; opacity:0; pointer-events:none; transition:opacity .2s ease;}
@@ -217,6 +222,7 @@
 
     <div id="aiSection" style="display:none;">
       <div class="ai-badge"><span class="dot"></span>подсказчик работает локально, по нашей базе — без внешнего ИИ и без затрат на сервер</div>
+      <div id="traitBox" style="display:none;"></div>
       <div class="chat-wrap">
         <div class="chat-log" id="chatLog"></div>
         <div class="quick-replies" id="quickReplies"></div>
@@ -515,6 +521,84 @@ function updateResume(){
   sheetContainer.innerHTML = isCompact ? renderCompactSheet() : renderDenseSheet();
   bindProfileInputs(sheetContainer);
   ctaLock.classList.toggle('ready', added.length>=2);
+  renderTraitSynthesis();
+}
+
+/* ---------- БЛОК-СИНТЕЗ: тёплая поддержка на языке черт, не психологический разбор ---------- */
+const TRAIT_RULES = [
+  { tags:["дети","животные"], trait:"забота о других", phrases:[
+    "Судя по тому, что откликается — тебе, похоже, комфортно нести ответственность за других.",
+    "Такие интересы часто говорят о том, что тебе важно заботиться о ком-то.",
+    "Часто за этим стоит развитая забота о более уязвимых — ценное качество для многих профессий." ]},
+  { tags:["игры","it"], trait:"техническое мышление", phrases:[
+    "Похоже, тебе комфортно разбираться в системах и логике — это не всем даётся легко.",
+    "Такое сочетание часто выдаёт человека, которому интересно, «как это устроено внутри».",
+    "Тянет к технике и системам — это склад ума, который сейчас особенно востребован." ]},
+  { tags:["волонтёрство","организация"], trait:"инициативность", phrases:[
+    "Ты из тех, кто не ждёт, пока кто-то другой организует — берёшь и делаешь сам(а).",
+    "Судя по выбранному — тебе комфортно быть в центре организации процесса, а не сбоку.",
+    "Это обычно про людей, которые готовы взять на себя чуть больше, чем просят." ]},
+  { tags:["музыка","творчество"], trait:"самовыражение", phrases:[
+    "Тебе, похоже, важно не просто потреблять — а создавать что-то своё.",
+    "За этим часто стоит потребность выразить себя, а не просто занять время.",
+    "Похоже, тебе ближе роли, где можно привнести что-то своё, а не действовать по шаблону." ]},
+  { tags:["финансы","организация"], trait:"структурное мышление", phrases:[
+    "Тебе, кажется, комфортно с цифрами и порядком — это встречается не так часто, как кажется.",
+    "Похоже, ты из тех, кому спокойнее, когда всё разложено по полочкам.",
+    "Такое сочетание обычно говорит о склонности мыслить системно и по цифрам." ]},
+  { tags:["видео","фото"], trait:"визуальное чутьё", phrases:[
+    "У тебя, похоже, развит глаз на то, как что-то выглядит и ощущается визуально.",
+    "Такое сочетание часто выдаёт человека с хорошим чувством композиции и подачи.",
+    "Похоже, тебе важно не только что сказать, но и как это показать." ]},
+  { tags:["готовка","рукоделие"], trait:"усидчивость и аккуратность", phrases:[
+    "Судя по выбранному — тебе комфортно с задачами, которые требуют терпения и точности.",
+    "Это обычно про людей, которые не бросают дело на middle, а доводят до конца аккуратно.",
+    "Похоже, тебе спокойнее в задачах, где важен результат, а не скорость." ]},
+  { tags:["путешествия","языки"], trait:"открытость новому", phrases:[
+    "Тебя, похоже, не пугает незнакомое — скорее наоборот, тянет туда.",
+    "Такое сочетание часто говорит о готовности выходить за пределы привычного.",
+    "Похоже, тебе комфортнее там, где нужно быстро адаптироваться к новому." ]},
+  { tags:["книги","сериалы"], trait:"внимание к деталям и историям", phrases:[
+    "Ты, похоже, из тех, кто замечает детали, которые другие пропускают мимо.",
+    "Такой интерес часто выдаёт развитое внимание к структуре и мотивам — не только к сюжету.",
+    "Похоже, тебе важно понимать, «почему», а не только «что произошло»." ]},
+  { tags:["волонтёрство"], trait:"неравнодушие", phrases:[
+    "Похоже, тебе не всё равно на то, что происходит вокруг — это редко бывает случайностью.",
+    "Такой выбор часто говорит о готовности вкладываться, даже когда не обязательно." ]},
+  { tags:["спорт"], trait:"дисциплина", phrases:[
+    "Регулярность в этом деле обычно говорит о том, что ты умеешь держать слово перед собой.",
+    "Похоже, тебе комфортно с рутиной, если она ведёт к результату." ]},
+  { tags:["it"], trait:"системное мышление", phrases:[
+    "Похоже, тебе интересно докапываться до сути того, как всё устроено.",
+    "Такой интерес часто выдаёт склонность мыслить логично и по шагам." ]},
+  { tags:["животные"], trait:"забота о других", phrases:[
+    "Судя по этому — тебе, похоже, комфортно заботиться о ком-то, кто не может позаботиться о себе сам.",
+    "Это часто говорит о развитой эмпатии, даже если сам(а) об этом не задумывался(-лась)." ]},
+  { tags:["соцсети"], trait:"умение находить общий язык", phrases:[
+    "Похоже, тебе легко удерживать внимание людей — не у всех это получается естественно.",
+    "Такой интерес часто выдаёт человека, которому комфортно быть на виду." ]}
+];
+
+function renderTraitSynthesis(){
+  const box = document.getElementById('traitBox');
+  if(!box) return;
+  if(added.length < 2){ box.style.display = 'none'; box.innerHTML=''; return; }
+
+  const tagSet = new Set(added.flatMap(a=>a.tags||[]));
+  const matched = [];
+  TRAIT_RULES.forEach(rule=>{
+    if(rule.tags.every(t=>tagSet.has(t)) && !matched.find(m=>m.trait===rule.trait)) matched.push(rule);
+  });
+
+  box.style.display = 'block';
+  if(matched.length===0){
+    box.innerHTML = `<div class="trait-card"><div class="trait-label">✦ Что вырисовывается</div><div class="trait-text">Пока рано делать выводы, но уже видно, что интересы у тебя разносторонние — само по себе неплохая черта.</div></div>`;
+    return;
+  }
+  box.innerHTML = matched.slice(0,2).map(rule=>{
+    const phrase = rule.phrases[Math.floor(Math.random()*rule.phrases.length)];
+    return `<div class="trait-card"><div class="trait-label">✦ ${rule.trait}</div><div class="trait-text">${phrase}</div></div>`;
+  }).join('');
 }
 
 /* ---------- MODE C: ПОДСКАЗЧИК (локальный, без внешнего ИИ) ---------- */
