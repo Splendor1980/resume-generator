@@ -101,6 +101,14 @@
   .roles{font-size:12.5px; margin:0 0 12px; list-style:none; padding:0;}
   .roles li{padding-left:14px; position:relative; margin-bottom:4px;}
   .roles li::before{content:"→"; position:absolute; left:0; color:var(--coral-deep); font-weight:700;}
+  .research-toggle{font-family:'Space Mono',monospace; font-size:10.5px; background:none; border:none; color:var(--ink-soft); cursor:pointer; padding:0; text-align:left; margin-bottom:8px; text-decoration:underline;}
+  .research-toggle:hover{color:var(--coral-deep);}
+  .research-box{display:none; background:var(--paper3); border-radius:6px; padding:10px 11px; margin-bottom:10px; font-size:11.5px; line-height:1.5;}
+  .research-box.open{display:block;}
+  .research-box .rb-summary{margin-bottom:6px;}
+  .research-box .rb-caveat{color:var(--ink-soft); font-style:italic; margin-bottom:6px;}
+  .research-box .rb-source{color:var(--coral-deep); font-size:10.5px;}
+  .research-box .rb-source a{color:inherit;}
   .add-btn{margin-top:auto; font-family:'Manrope',sans-serif; font-weight:700; font-size:13px; background:var(--ink); color:#fff; border:none; border-radius:6px; padding:9px; cursor:pointer;}
   .add-btn:hover{background:var(--coral-deep);}
   .add-btn.added{background:#7FA37F;}
@@ -111,7 +119,12 @@
   .role-chip{font-family:'Manrope',sans-serif; font-weight:600; font-size:13.5px; padding:11px 16px; border-radius:10px; background:var(--paper3); border:1px solid var(--line); cursor:pointer; transition:all .15s ease;}
   .role-chip:hover{transform:translateY(-1px);}
   .role-chip.active{background:var(--ink); color:#fff;}
-  .byrole-hint{font-size:13.5px; color:var(--ink); background:var(--paper3); border:1px solid var(--line); border-left:3px solid var(--coral); border-radius:8px; padding:12px 15px; margin-bottom:18px; line-height:1.5;}
+  .byrole-hint{font-size:13.5px; color:var(--ink); background:var(--paper3); border:1px solid var(--line); border-left:3px solid var(--coral); border-radius:8px; padding:12px 15px; margin-bottom:14px; line-height:1.5;}
+  .role-search{width:100%; max-width:420px; font-family:'Manrope',sans-serif; font-size:13.5px; padding:11px 14px; border-radius:10px; border:1px solid var(--line); background:var(--white); margin-bottom:16px;}
+  .role-search:focus{outline:none; border-color:var(--coral-deep);}
+  .role-chosen-chip{display:inline-flex; align-items:center; gap:10px; background:var(--ink); color:#fff; font-weight:600; font-size:13.5px; padding:10px 16px; border-radius:10px; margin-bottom:18px;}
+  .role-chosen-chip button{background:rgba(255,255,255,0.2); border:none; color:#fff; border-radius:6px; padding:3px 9px; font-size:12px; cursor:pointer; font-family:'Manrope',sans-serif;}
+  .role-chosen-chip button:hover{background:rgba(255,255,255,0.35);}
   .skill-check{display:flex; align-items:flex-start; gap:10px; background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:10px; cursor:pointer;}
   .skill-check.have{background:#EAF3EA; border-color:#B9D8B9;}
   .skill-check .box{width:18px; height:18px; border-radius:5px; border:2px solid var(--ink-soft); flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;}
@@ -221,7 +234,9 @@
     </div>
 
     <div id="byRoleSection" style="display:none;">
-      <div class="byrole-hint">👆 Выбери профессию — покажем навыки, которые для неё пригодятся. Отметь те, что реально про тебя.</div>
+      <div class="byrole-hint">👆 Найди профессию (поиском или в списке) — покажем навыки, которые для неё пригодятся.</div>
+      <input type="text" id="roleSearch" class="role-search" placeholder="🔍 Начни печатать профессию, например «фото» или «стажёр»...">
+      <div id="roleChosen" style="display:none;"></div>
       <div class="role-grid" id="roleGrid"></div>
       <div id="roleResult"></div>
     </div>
@@ -321,6 +336,8 @@ const filtersEl = document.getElementById('filters');
 const boardEl = document.getElementById('board');
 const roleGridEl = document.getElementById('roleGrid');
 const roleResultEl = document.getElementById('roleResult');
+const roleSearchEl = document.getElementById('roleSearch');
+const roleChosenEl = document.getElementById('roleChosen');
 const sheetContainer = document.getElementById('sheetContainer');
 const counterEl = document.getElementById('counter');
 const ctaLock = document.getElementById('ctaLock');
@@ -396,6 +413,16 @@ function renderFilters(){
   });
 }
 
+function researchBlockHtml(item){
+  if(!item.research) return '';
+  return `<button class="research-toggle" data-research-id="${item.id}">🔬 Что говорят исследования</button>
+    <div class="research-box" id="research-${item.id}">
+      <div class="rb-summary">${item.research.summary}</div>
+      <div class="rb-caveat">⚠️ ${item.research.caveat}</div>
+      <div class="rb-source">Источник: <a href="${item.research.source_url}" target="_blank" rel="noopener">${item.research.source_name}</a></div>
+    </div>`;
+}
+
 function renderBoard(){
   const filtered = active.size===0 ? items : items.filter(i=>(i.tags||[]).some(t=>active.has(t)));
   if(filtered.length===0){ boardEl.innerHTML = `<div class="empty-state">Ничего не нашлось по этим тегам.</div>`; return; }
@@ -405,6 +432,7 @@ function renderBoard(){
       <h3>${item.category}</h3>
       <div class="tag-row">${(item.skills||[]).map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
       <ul class="roles">${(item.roles||[]).map(r=>`<li>${r}</li>`).join('')}</ul>
+      ${researchBlockHtml(item)}
       <button class="add-btn${isAdded?' added':''}" data-id="${item.id}">${isAdded?'✓ Добавлено (нажми, чтобы убрать)':'+ Добавить в резюме'}</button>
     </div>`;
   }).join('');
@@ -416,12 +444,47 @@ function renderBoard(){
       renderRoleResult();
     });
   });
+  boardEl.querySelectorAll('.research-toggle').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.getElementById('research-' + btn.dataset.researchId).classList.toggle('open');
+    });
+  });
 }
 
 /* ---------- MODE B: BY ROLE ---------- */
+let roleSearchQuery = '';
+
 function renderRoleGrid(){
   const allRoles = [...new Set(items.flatMap(i=>i.roles||[]))].sort();
-  roleGridEl.innerHTML = allRoles.map(r=>`<button class="role-chip${activeRole===r?' active':''}" data-role="${r}">${r}</button>`).join('');
+
+  // если профессия уже выбрана — сворачиваем плитку, показываем только маленький чип
+  if(activeRole){
+    roleGridEl.style.display = 'none';
+    roleSearchEl.style.display = 'none';
+    roleChosenEl.style.display = 'block';
+    roleChosenEl.innerHTML = `<div class="role-chosen-chip">${activeRole} <button id="changeRoleBtn">изменить</button></div>`;
+    document.getElementById('changeRoleBtn').addEventListener('click', ()=>{
+      activeRole = null;
+      roleSearchQuery = '';
+      roleSearchEl.value = '';
+      renderRoleGrid();
+      renderRoleResult();
+    });
+    return;
+  }
+
+  roleGridEl.style.display = 'flex';
+  roleSearchEl.style.display = 'block';
+  roleChosenEl.style.display = 'none';
+
+  const q = roleSearchQuery.toLowerCase();
+  const filtered = q ? allRoles.filter(r=>r.toLowerCase().includes(q)) : allRoles;
+
+  if(filtered.length===0){
+    roleGridEl.innerHTML = `<div class="empty-state">Ничего не нашлось — попробуй другое слово.</div>`;
+    return;
+  }
+  roleGridEl.innerHTML = filtered.map(r=>`<button class="role-chip" data-role="${r}">${r}</button>`).join('');
   roleGridEl.querySelectorAll('.role-chip').forEach(chip=>{
     chip.addEventListener('click',()=>{
       activeRole = chip.dataset.role;
@@ -430,6 +493,11 @@ function renderRoleGrid(){
     });
   });
 }
+
+roleSearchEl.addEventListener('input', ()=>{
+  roleSearchQuery = roleSearchEl.value;
+  renderRoleGrid();
+});
 
 function renderRoleResult(){
   if(!activeRole){ roleResultEl.innerHTML = `<div class="empty-state">Здесь появятся навыки, как только выберешь профессию.</div>`; return; }
