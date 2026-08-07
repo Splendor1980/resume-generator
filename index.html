@@ -17,7 +17,7 @@
   body{margin:0;background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;}
 
   /* резюме-колонка увеличена ~в 1.6 раза (было minmax(240,300)) */
-  .layout{display:grid; grid-template-columns: minmax(320px, 480px) 1fr; min-height:100vh;}
+  .layout{display:grid; grid-template-columns: minmax(320px, min(34vw, 560px)) 1fr; min-height:100vh;}
   @media (max-width:760px){
     .layout{grid-template-columns:1fr;}
     .resume-pane{order:2; position:static; max-height:none;}
@@ -597,7 +597,7 @@ function renderCompactSheet(){
     <div class="main">
       ${added.length ? editableBlock('О себе', 'about', aboutTextFrom(added), 3) : '<div><div class="label-sm">О себе</div><span class="placeholder">пара строк появится автоматически</span></div>'}
       ${added.length ? editableBlock('Что предлагаю', 'exp', expTextFrom(added), 4) : '<div><div class="label-sm">Что предлагаю</div><span class="placeholder">выбери идею слева</span></div>'}
-      <div><div class="label-sm">Образование</div><input class="field-input c-text" data-profile-field="education" placeholder="Школа / колледж / вуз, год" value="${esc(profile.education)}"></div>
+      <div><div class="label-sm">Образование</div><textarea class="field-textarea" data-profile-field="education" rows="2" placeholder="Школа / колледж / вуз, год">${esc(profile.education)}</textarea></div>
       <div class="footnote">Мало контента — компенсируем сайдбаром и воздухом</div>
     </div>`;
 }
@@ -616,7 +616,7 @@ function renderDenseSheet(){
     <div class="block">${editableBlock('Проектный опыт', 'exp', expTextFrom(added), 5)}</div>
     <div class="block two-col">
       <div><div class="label-sm">Навыки</div>${[...new Set(added.flatMap(a=>a.skills||[]))].map(s=>`<span class="tag">${s}</span>`).join('')}</div>
-      <div><div class="label-sm">Образование</div><input class="field-input c-text" data-profile-field="education" placeholder="Школа / колледж / вуз, год" value="${esc(profile.education)}"></div>
+      <div><div class="label-sm">Образование</div><textarea class="field-textarea" data-profile-field="education" rows="2" placeholder="Школа / колледж / вуз, год">${esc(profile.education)}</textarea></div>
     </div>`;
 }
 function updateResume(){
