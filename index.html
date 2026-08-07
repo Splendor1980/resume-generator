@@ -52,6 +52,12 @@
   .bar span{display:block; height:100%; background:var(--coral); border-radius:2px;}
   .pill{font-size:11px; background:var(--paper3); color:var(--coral-deep); padding:4px 9px; border-radius:20px; display:inline-block; margin:0 5px 5px 0;}
   .c-text{font-size:13.5px; line-height:1.6;}
+  .field-textarea{border:1px dashed var(--line); border-radius:6px; background:transparent; font-family:inherit; font-size:13.5px; line-height:1.6; color:inherit; width:100%; padding:8px 10px; resize:vertical; min-height:56px;}
+  .field-textarea:focus{outline:none; border-style:solid; border-color:var(--coral-deep);}
+  .field-textarea::placeholder{color:#B7BFB2; font-style:italic;}
+  .field-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;}
+  .reset-btn{font-family:'Space Mono',monospace; font-size:10px; background:none; border:none; color:var(--ink-soft); cursor:pointer; text-decoration:underline; padding:0;}
+  .reset-btn:hover{color:var(--coral-deep);}
   .check-item{font-size:13px; margin-bottom:8px; display:flex; gap:7px;}
   .footnote{margin-top:auto; padding-top:12px; border-top:1px dashed var(--line); font-size:11px; color:var(--ink-soft);}
 
@@ -105,7 +111,7 @@
   .role-chip{font-family:'Manrope',sans-serif; font-weight:600; font-size:13.5px; padding:11px 16px; border-radius:10px; background:var(--paper3); border:1px solid var(--line); cursor:pointer; transition:all .15s ease;}
   .role-chip:hover{transform:translateY(-1px);}
   .role-chip.active{background:var(--ink); color:#fff;}
-  .byrole-hint{font-size:13px; color:var(--ink-soft); margin-bottom:14px;}
+  .byrole-hint{font-size:13.5px; color:var(--ink); background:var(--paper3); border:1px solid var(--line); border-left:3px solid var(--coral); border-radius:8px; padding:12px 15px; margin-bottom:18px; line-height:1.5;}
   .skill-check{display:flex; align-items:flex-start; gap:10px; background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:10px; cursor:pointer;}
   .skill-check.have{background:#EAF3EA; border-color:#B9D8B9;}
   .skill-check .box{width:18px; height:18px; border-radius:5px; border:2px solid var(--ink-soft); flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;}
@@ -215,7 +221,7 @@
     </div>
 
     <div id="byRoleSection" style="display:none;">
-      <div class="byrole-hint">Выбери профессию — покажем навыки, которые для неё пригодятся. Отметь те, что реально про тебя.</div>
+      <div class="byrole-hint">👆 Выбери профессию — покажем навыки, которые для неё пригодятся. Отметь те, что реально про тебя.</div>
       <div class="role-grid" id="roleGrid"></div>
       <div id="roleResult"></div>
     </div>
@@ -339,7 +345,7 @@ let added = [];
 let activeRole = null;
 let haveSkills = new Set();
 /* ручные поля резюме — живут отдельно от added, переживают перерисовку шаблона */
-let profile = { name:'', role:'', phone:'', email:'', education:'' };
+let profile = { name:'', role:'', phone:'', email:'', education:'', about:'', aboutTouched:false, exp:'', expTouched:false };
 
 /* ---------- DRAWER ---------- */
 gearBtn.addEventListener('click', ()=> drawerOverlay.classList.add('open'));
@@ -426,7 +432,7 @@ function renderRoleGrid(){
 }
 
 function renderRoleResult(){
-  if(!activeRole){ roleResultEl.innerHTML = `<div class="empty-state">Выбери профессию выше, чтобы увидеть подходящие навыки.</div>`; return; }
+  if(!activeRole){ roleResultEl.innerHTML = `<div class="empty-state">Здесь появятся навыки, как только выберешь профессию.</div>`; return; }
   const matching = items.filter(i=>(i.roles||[]).includes(activeRole));
   if(matching.length===0){ roleResultEl.innerHTML = `<div class="empty-state">Пока нет связок для этой роли.</div>`; return; }
 
@@ -461,14 +467,45 @@ function renderRoleResult(){
 
 /* ---------- RESUME: адаптивный + редактируемый шаблон ---------- */
 function aboutTextFrom(list){
-  return 'Активно интересуюсь: ' + list.map(a=>a.category.toLowerCase()).join(', ') + '. Ищу возможность применить это на практике.';
+  /* "Мои интересы: X" не требует склонения категорий — раньше было "интересуюсь X"
+     (нужен творительный падеж), из-за чего вылезали ошибки согласования */
+  return 'Мои интересы: ' + list.map(a=>a.category.toLowerCase()).join(', ') + '. Ищу возможность применить это на практике.';
+}
+function expTextFrom(list){
+  return list.map(a=>`${a.category}: ${(a.skills||[]).join(', ')}`).join('\n');
 }
 function bindProfileInputs(container){
   container.querySelectorAll('[data-profile-field]').forEach(inp=>{
     inp.addEventListener('input', ()=>{ profile[inp.dataset.profileField] = inp.value; });
   });
+  container.querySelectorAll('[data-profile-textarea]').forEach(ta=>{
+    ta.addEventListener('input', ()=>{
+      const field = ta.dataset.profileTextarea;
+      profile[field] = ta.value;
+      profile[field + 'Touched'] = true;
+    });
+  });
+  container.querySelectorAll('[data-reset-field]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const field = btn.dataset.resetField;
+      profile[field] = '';
+      profile[field + 'Touched'] = false;
+      updateResume();
+    });
+  });
 }
 function esc(s){ return (s||'').replace(/"/g,'&quot;'); }
+function escAttr(s){ return esc(s).replace(/\n/g,'&#10;'); }
+
+function editableBlock(label, field, autoText, rows){
+  const touched = profile[field + 'Touched'];
+  const value = touched ? profile[field] : autoText;
+  const resetBtn = touched ? `<button class="reset-btn" data-reset-field="${field}">↺ вернуть автотекст</button>` : '';
+  return `<div>
+    <div class="field-head"><div class="label-sm" style="margin-bottom:0;">${label}</div>${resetBtn}</div>
+    <textarea class="field-textarea" data-profile-textarea="${field}" rows="${rows}" placeholder="Впиши или дополни текст">${esc(value)}</textarea>
+  </div>`;
+}
 
 function renderCompactSheet(){
   const skills = [...new Set(added.flatMap(a=>a.skills||[]))];
@@ -490,8 +527,8 @@ function renderCompactSheet(){
       <div><div class="label-sm">Интересы</div>${tags.length ? tags.map(t=>`<span class="pill">${t}</span>`).join('') : '<span class="placeholder">пока пусто</span>'}</div>
     </div>
     <div class="main">
-      <div><div class="label-sm">О себе</div><div class="c-text">${added.length ? aboutTextFrom(added) : '<span class="placeholder">пара строк появится автоматически</span>'}</div></div>
-      <div><div class="label-sm">Что предлагаю</div>${added.length ? added.map(a=>`<div class="check-item">✓ ${(a.skills||[]).join(', ')}</div>`).join('') : '<span class="placeholder">выбери идею слева</span>'}</div>
+      ${added.length ? editableBlock('О себе', 'about', aboutTextFrom(added), 3) : '<div><div class="label-sm">О себе</div><span class="placeholder">пара строк появится автоматически</span></div>'}
+      ${added.length ? editableBlock('Что предлагаю', 'exp', expTextFrom(added), 4) : '<div><div class="label-sm">Что предлагаю</div><span class="placeholder">выбери идею слева</span></div>'}
       <div><div class="label-sm">Образование</div><input class="field-input c-text" data-profile-field="education" placeholder="Школа / колледж / вуз, год" value="${esc(profile.education)}"></div>
       <div class="footnote">Мало контента — компенсируем сайдбаром и воздухом</div>
     </div>`;
@@ -507,8 +544,8 @@ function renderDenseSheet(){
         <span>📞 <input class="field-input small-input" data-profile-field="phone" placeholder="+7 900 000-00-00" value="${esc(profile.phone)}"></span>
       </div>
     </div>
-    <div class="block"><div class="label-sm">О себе</div><div class="c-text">${aboutTextFrom(added)}</div></div>
-    <div class="block"><div class="label-sm">Проектный опыт</div>${added.map(a=>`<div class="proj"><div class="t">${a.category}</div><div class="d">${(a.skills||[]).join(' · ')}</div></div>`).join('')}</div>
+    <div class="block">${editableBlock('О себе', 'about', aboutTextFrom(added), 3)}</div>
+    <div class="block">${editableBlock('Проектный опыт', 'exp', expTextFrom(added), 5)}</div>
     <div class="block two-col">
       <div><div class="label-sm">Навыки</div>${[...new Set(added.flatMap(a=>a.skills||[]))].map(s=>`<span class="tag">${s}</span>`).join('')}</div>
       <div><div class="label-sm">Образование</div><input class="field-input c-text" data-profile-field="education" placeholder="Школа / колледж / вуз, год" value="${esc(profile.education)}"></div>
