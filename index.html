@@ -263,7 +263,7 @@
       <button class="cta-lock" id="ctaLock">📄 Скачать PDF
         <small>откроется после 2+ идей</small>
       </button>
-      <div class="pdf-hint">В окне печати, если увидишь дату/ссылку сверху или снизу листа — сними галочку «Заголовки и нижние колонтитулы» (обычно в разделе «Ещё настройки»).</div>
+      <div class="pdf-hint"><b>Чтобы сохранить файл:</b> в открывшемся окне печати в списке принтеров выбери «Сохранить как PDF» — и уже там нажми «Сохранить». Если сверху/снизу листа увидишь дату или ссылку — сними галочку «Заголовки и нижние колонтитулы» (обычно в разделе «Ещё настройки»).</div>
     </div>
   </aside>
 
@@ -917,7 +917,20 @@ function renderPrintSheet(){
     ${profile.portfolio ? `<div class="p-section"><div class="p-label">Портфолио / ссылки</div><div class="p-text">${esc(profile.portfolio)}</div></div>` : ''}
   `;
 }
-window.addEventListener('beforeprint', renderPrintSheet);
+window.addEventListener('beforeprint', ()=>{
+  // Кнопка на сайте — не единственный способ вызвать печать (Ctrl+P/меню браузера её не видят).
+  // Поэтому проверяем условие здесь же, при самом событии печати, а не только в клике по кнопке —
+  // иначе через Ctrl+P можно получить полное резюме в обход разблокировки.
+  if(isUnlocked()){
+    renderPrintSheet();
+  } else {
+    document.getElementById('printSheet').innerHTML = `
+      <div style="padding:50mm 25mm; text-align:center; font-family:'Manrope',sans-serif;">
+        <div style="font-size:16pt; font-weight:700; margin-bottom:8mm;">Скачивание пока не разблокировано</div>
+        <div style="font-size:12pt; line-height:1.6; color:#4A5A4E;">Вернись на сайт, добавь минимум 2 идеи в резюме и нажми «Скачать PDF» — там можно поделиться постом или просто подождать 10 минут. Это бесплатно.</div>
+      </div>`;
+  }
+});
 ctaLock.addEventListener('click', ()=>{
   if(added.length < 2) return;
   if(isUnlocked()){ window.print(); }
