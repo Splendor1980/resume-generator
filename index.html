@@ -173,6 +173,25 @@
   .d-card:hover{background:var(--paper2);}
   .drawer-foot{font-size:11.5px; color:var(--ink-soft); line-height:1.7; border-top:1px solid var(--line); padding-top:14px;}
   .drawer-foot a{color:var(--coral-deep);}
+
+  /* ---------- ПЕЧАТЬ / PDF ---------- */
+  #printSheet{display:none;}
+  @media print{
+    body > *:not(#printSheet){display:none !important;}
+    #printSheet{
+      display:block; width:100%; margin:0;
+      font-family:'Manrope',sans-serif; color:#1E2B22; box-sizing:border-box;
+    }
+    .p-name{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:22pt;}
+    .p-role{font-size:13pt; color:#E4523C; font-weight:700; margin-top:2mm;}
+    .p-contacts{font-size:10pt; color:#4A5A4E; margin-top:2mm;}
+    .p-section{margin-top:6mm;}
+    .p-label{font-family:'Space Mono',monospace; font-size:9pt; text-transform:uppercase; letter-spacing:.05em; color:#4A5A4E; margin-bottom:2mm; border-bottom:0.5pt solid #ccc; padding-bottom:1.5mm; break-after:avoid;}
+    .p-text{font-size:11pt; line-height:1.5; white-space:pre-wrap;}
+    .p-proj{font-size:11pt; line-height:1.5; margin-bottom:3mm; break-inside:avoid;}
+    .p-tags span{display:inline-block; margin:0 4mm 2mm 0;}
+    @page{size:A4; margin:18mm 20mm;}
+  }
 </style>
 </head>
 <body>
@@ -210,9 +229,9 @@
     <div class="label">Твоё резюме — собирается прямо сейчас (можно редактировать вручную)</div>
     <div class="sheet compact" id="sheetContainer"></div>
     <div class="counter" id="counter">Добавлено идей: 0</div>
-    <div class="cta-lock" id="ctaLock">Скачать / редактировать полностью
-      <small>откроется после 2+ идей — доступно платно, 50 ₽</small>
-    </div>
+    <button class="cta-lock" id="ctaLock">📄 Скачать PDF / редактировать полностью
+      <small>откроется после 2+ идей — доступно платно, 50 ₽ (пока просто печать браузера)</small>
+    </button>
   </aside>
 
   <section class="board-pane">
@@ -259,6 +278,10 @@
 
   </section>
 </div>
+
+<!-- Скрытый "чистый" слой для печати/PDF — вне .layout, чтобы можно было независимо
+     скрыть весь .layout и показать только этот блок при печати -->
+<div id="printSheet"></div>
 
 <script>
 /* ---------- ЗАГРУЗКА ПОЛНОЙ БАЗЫ ---------- */
@@ -362,7 +385,7 @@ let added = [];
 let activeRole = null;
 let haveSkills = new Set();
 /* ручные поля резюме — живут отдельно от added, переживают перерисовку шаблона */
-let profile = { name:'', role:'', phone:'', email:'', education:'', about:'', aboutTouched:false, exp:'', expTouched:false };
+let profile = { name:'', role:'', phone:'', email:'', education:'', about:'', aboutTouched:false, exp:'', expTouched:false, schedule:'', portfolio:'' };
 
 /* ---------- DRAWER ---------- */
 gearBtn.addEventListener('click', ()=> drawerOverlay.classList.add('open'));
@@ -562,7 +585,7 @@ function bindProfileInputs(container){
     });
   });
 }
-function esc(s){ return (s||'').replace(/"/g,'&quot;'); }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function escAttr(s){ return esc(s).replace(/\n/g,'&#10;'); }
 
 function editableBlock(label, field, autoText, rows){
@@ -593,11 +616,13 @@ function renderCompactSheet(){
       </div>
       <div><div class="label-sm">Навыки</div>${skills.length ? skills.slice(0,4).map((s,i)=>`<div class="skill-bar-item">${s}<div class="bar"><span style="width:${75+((i*7)%20)}%"></span></div></div>`).join('') : '<span class="placeholder">появятся после выбора идей</span>'}</div>
       <div><div class="label-sm">Интересы</div>${tags.length ? tags.map(t=>`<span class="pill">${t}</span>`).join('') : '<span class="placeholder">пока пусто</span>'}</div>
+      <div><div class="label-sm">Желаемый график</div><textarea class="field-textarea" data-profile-field="schedule" rows="2" placeholder="Напр.: летом, 20-25 часов в неделю">${esc(profile.schedule)}</textarea></div>
     </div>
     <div class="main">
       ${added.length ? editableBlock('О себе', 'about', aboutTextFrom(added), 3) : '<div><div class="label-sm">О себе</div><span class="placeholder">пара строк появится автоматически</span></div>'}
       ${added.length ? editableBlock('Что предлагаю', 'exp', expTextFrom(added), 4) : '<div><div class="label-sm">Что предлагаю</div><span class="placeholder">выбери идею слева</span></div>'}
       <div><div class="label-sm">Образование</div><textarea class="field-textarea" data-profile-field="education" rows="2" placeholder="Школа / колледж / вуз, год">${esc(profile.education)}</textarea></div>
+      <div><div class="label-sm">Портфолио / ссылки <span style="text-transform:none; font-style:italic;">(если есть)</span></div><textarea class="field-textarea" data-profile-field="portfolio" rows="2" placeholder="Instagram, YouTube, GitHub...">${esc(profile.portfolio)}</textarea></div>
       <div class="footnote">Мало контента — компенсируем сайдбаром и воздухом</div>
     </div>`;
 }
@@ -617,6 +642,10 @@ function renderDenseSheet(){
     <div class="block two-col">
       <div><div class="label-sm">Навыки</div>${[...new Set(added.flatMap(a=>a.skills||[]))].map(s=>`<span class="tag">${s}</span>`).join('')}</div>
       <div><div class="label-sm">Образование</div><textarea class="field-textarea" data-profile-field="education" rows="2" placeholder="Школа / колледж / вуз, год">${esc(profile.education)}</textarea></div>
+    </div>
+    <div class="block two-col">
+      <div><div class="label-sm">Желаемый график</div><textarea class="field-textarea" data-profile-field="schedule" rows="2" placeholder="Напр.: летом, 20-25 часов в неделю">${esc(profile.schedule)}</textarea></div>
+      <div><div class="label-sm">Портфолио / ссылки <span style="text-transform:none; font-style:italic;">(если есть)</span></div><textarea class="field-textarea" data-profile-field="portfolio" rows="2" placeholder="Instagram, YouTube, GitHub...">${esc(profile.portfolio)}</textarea></div>
     </div>`;
 }
 function updateResume(){
@@ -792,6 +821,45 @@ chatSend.addEventListener('click', ()=> handleUserMessage(chatInput.value));
 chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter') handleUserMessage(chatInput.value); });
 
 /* ---------- INIT ---------- */
+/* ---------- ПЕЧАТЬ / PDF: собираем чистый слой без полей ввода и интерфейса ---------- */
+function renderPrintSheet(){
+  const printEl = document.getElementById('printSheet');
+  const skills = [...new Set(added.flatMap(a=>a.skills||[]))];
+  const autoRole = added.length ? (added[0].roles||[])[0] : '';
+  const roleVal = profile.role || autoRole;
+  const aboutVal = profile.aboutTouched ? profile.about : (added.length ? aboutTextFrom(added) : '');
+  const contacts = [profile.email, profile.phone].filter(Boolean).join('  ·  ');
+
+  // "Проектный опыт": если пользователь не трогал поле руками — рендерим каждый пункт
+  // ОТДЕЛЬНЫМ блоком с запретом разрыва внутри (иначе браузер может разорвать пункт
+  // посередине предложения на границе страниц). Если поле отредактировано вручную —
+  // это уже свободный текст, структуру по пунктам сохранить нечем, печатаем как есть.
+  let expHtml = '';
+  if(profile.expTouched){
+    if(profile.exp) expHtml = `<div class="p-section"><div class="p-label">Проектный опыт</div><div class="p-text">${esc(profile.exp)}</div></div>`;
+  } else if(added.length){
+    const items = added.map(a=>`<div class="p-proj"><b>${esc(a.category)}:</b> ${esc((a.skills||[]).join(', '))}</div>`).join('');
+    expHtml = `<div class="p-section"><div class="p-label">Проектный опыт</div>${items}</div>`;
+  }
+
+  printEl.innerHTML = `
+    <div class="p-name">${esc(profile.name) || 'Имя Фамилия'}</div>
+    ${roleVal ? `<div class="p-role">${esc(roleVal)}</div>` : ''}
+    ${contacts ? `<div class="p-contacts">${contacts}</div>` : ''}
+    ${profile.schedule ? `<div class="p-section"><div class="p-label">Желаемый график</div><div class="p-text">${esc(profile.schedule)}</div></div>` : ''}
+    ${aboutVal ? `<div class="p-section"><div class="p-label">О себе</div><div class="p-text">${esc(aboutVal)}</div></div>` : ''}
+    ${skills.length ? `<div class="p-section"><div class="p-label">Навыки</div><div class="p-text p-tags">${skills.map(s=>`<span>· ${s}</span>`).join('')}</div></div>` : ''}
+    ${expHtml}
+    ${profile.education ? `<div class="p-section"><div class="p-label">Образование</div><div class="p-text">${esc(profile.education)}</div></div>` : ''}
+    ${profile.portfolio ? `<div class="p-section"><div class="p-label">Портфолио / ссылки</div><div class="p-text">${esc(profile.portfolio)}</div></div>` : ''}
+  `;
+}
+window.addEventListener('beforeprint', renderPrintSheet);
+ctaLock.addEventListener('click', ()=>{
+  if(added.length >= 2){ window.print(); }
+});
+
+
 function initAll(){
   renderFilters();
   renderBoard();
