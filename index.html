@@ -77,6 +77,32 @@
   .cta-lock{margin-top:14px; background:var(--coral); color:#fff; text-align:center; padding:13px; border-radius:8px; font-weight:700; font-size:14px; opacity:0.45; pointer-events:none; transition:opacity .2s ease;}
   .cta-lock.ready{opacity:1; pointer-events:auto; cursor:pointer;}
   .cta-lock small{display:block; font-weight:400; font-size:11px; margin-top:3px; opacity:0.9;}
+  .pdf-hint{font-size:10.5px; color:var(--ink-soft); margin-top:8px; line-height:1.4; text-align:center;}
+
+  /* ---------- МОДАЛКА РАЗБЛОКИРОВКИ ---------- */
+  .unlock-overlay{position:fixed; inset:0; background:rgba(30,43,34,0.45); z-index:200; display:none; align-items:center; justify-content:center; padding:20px;}
+  .unlock-overlay.open{display:flex;}
+  .unlock-modal{background:var(--bg); border-radius:14px; max-width:520px; width:100%; max-height:88vh; overflow-y:auto; padding:28px 26px; position:relative; box-shadow:0 30px 60px -20px rgba(0,0,0,0.4);}
+  .unlock-close{position:absolute; top:16px; right:16px; background:none; border:none; font-size:18px; color:var(--ink-soft); cursor:pointer;}
+  .unlock-eyebrow{font-family:'Space Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; background:var(--ink); color:var(--paper1); padding:5px 11px; border-radius:20px; display:inline-block;}
+  .unlock-modal h3{font-family:'Baloo 2',sans-serif; font-size:21px; margin:14px 0 8px;}
+  .unlock-sub{font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin:0 0 18px;}
+  .unlock-tabs{display:flex; gap:6px; background:var(--paper1); border-radius:10px; padding:4px; margin-bottom:18px;}
+  .unlock-tab{flex:1; font-family:'Manrope',sans-serif; font-weight:700; font-size:12.5px; padding:9px 10px; border-radius:8px; border:none; background:transparent; color:var(--ink-soft); cursor:pointer;}
+  .unlock-tab.active{background:var(--ink); color:#fff;}
+  .unlock-hint{font-size:13px; color:var(--ink-soft); line-height:1.5; margin:0 0 10px;}
+  .post-variants{display:flex; flex-direction:column; gap:8px;}
+  .post-variant{background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:11px 13px;}
+  .post-variant .pv-text{font-size:12.5px; line-height:1.5; margin-bottom:8px; white-space:pre-wrap;}
+  .pv-copy-btn{font-family:'Space Mono',monospace; font-size:11px; background:var(--paper3); border:1px solid var(--line); border-radius:6px; padding:5px 10px; cursor:pointer;}
+  .pv-copy-btn:hover{background:var(--paper2);}
+  .post-link-input{width:100%; font-family:'Manrope',sans-serif; font-size:13px; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--white); margin-bottom:10px;}
+  .unlock-confirm-btn{width:100%; font-family:'Manrope',sans-serif; font-weight:700; font-size:13.5px; background:var(--coral); color:#fff; border:none; border-radius:8px; padding:12px; cursor:pointer;}
+  .unlock-confirm-btn:hover{background:var(--coral-deep);}
+  .unlock-confirm-btn:disabled{opacity:0.5; cursor:default;}
+  .unlock-note{font-size:12px; color:var(--ink-soft); margin-top:10px; text-align:center; min-height:16px;}
+  .unlock-note.success{color:#3D7A3D; font-weight:700;}
+  .wait-timer{font-family:'Space Mono',monospace; font-size:38px; font-weight:700; text-align:center; color:var(--coral-deep); margin:18px 0 6px;}
 
   /* RIGHT */
   .board-pane{padding:32px 28px 60px; position:relative;}
@@ -181,8 +207,8 @@
   @media print{
     body > *:not(#printSheet){display:none !important;}
     #printSheet{
-      display:block; width:100%; margin:0;
-      font-family:'Manrope',sans-serif; color:#1E2B22; box-sizing:border-box;
+      display:block; width:100%; margin:0; padding:16mm 18mm; box-sizing:border-box;
+      font-family:'Manrope',sans-serif; color:#1E2B22;
     }
     .p-name{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:22pt;}
     .p-role{font-size:13pt; color:#E4523C; font-weight:700; margin-top:2mm;}
@@ -192,7 +218,7 @@
     .p-text{font-size:11pt; line-height:1.5; white-space:pre-wrap;}
     .p-proj{font-size:11pt; line-height:1.5; margin-bottom:3mm; break-inside:avoid;}
     .p-tags span{display:inline-block; margin:0 4mm 2mm 0;}
-    @page{size:A4; margin:18mm 20mm;}
+    @page{size:A4; margin:0;}
   }
 </style>
 </head>
@@ -234,11 +260,42 @@
     </div>
     <div class="resume-footer">
       <div class="counter" id="counter">Добавлено идей: 0</div>
-      <button class="cta-lock" id="ctaLock">📄 Скачать PDF / редактировать полностью
-        <small>откроется после 2+ идей — доступно платно, 50 ₽ (пока просто печать браузера)</small>
+      <button class="cta-lock" id="ctaLock">📄 Скачать PDF
+        <small>откроется после 2+ идей</small>
       </button>
+      <div class="pdf-hint">В окне печати, если увидишь дату/ссылку сверху или снизу листа — сними галочку «Заголовки и нижние колонтитулы» (обычно в разделе «Ещё настройки»).</div>
     </div>
   </aside>
+
+  <!-- Модалка выбора: поделиться или просто подождать — мягкая механика, не жёсткий пейволл -->
+  <div class="unlock-overlay" id="unlockOverlay">
+    <div class="unlock-modal">
+      <button class="unlock-close" id="unlockClose">✕</button>
+      <div class="unlock-eyebrow">пока сайт тестовый и бесплатный</div>
+      <h3>Секунду, прежде чем скачать 🙂</h3>
+      <p class="unlock-sub">Мы растём только благодаря вам — спасибо, что помогаете другим таким же ребятам найти первую работу. Выбирай, как удобнее — оба варианта работают одинаково честно.</p>
+
+      <div class="unlock-tabs">
+        <button class="unlock-tab active" data-tab="share">Поделиться и скачать сразу</button>
+        <button class="unlock-tab" data-tab="wait">Просто подождать 10 минут</button>
+      </div>
+
+      <div id="unlockShareTab" class="unlock-tab-content">
+        <p class="unlock-hint">Расскажи друзьям, кто тоже не знает, что писать в резюме — текст уже готов, просто скопируй и опубликуй в VK или Дзене:</p>
+        <div class="post-variants" id="postVariants"></div>
+        <p class="unlock-hint" style="margin-top:14px;">Опубликовал(а)? Вставь сюда ссылку на пост:</p>
+        <input type="text" id="postLinkInput" class="post-link-input" placeholder="https://vk.com/wall... или https://dzen.ru/...">
+        <button class="unlock-confirm-btn" id="confirmShareBtn">Готово, разблокировать</button>
+        <div class="unlock-note" id="shareNote"></div>
+      </div>
+
+      <div id="unlockWaitTab" class="unlock-tab-content" style="display:none;">
+        <p class="unlock-hint">Тоже сработает — без всяких условий. Можно оставить вкладку открытой или просто зайти позже.</p>
+        <div class="wait-timer" id="waitTimer">10:00</div>
+        <div class="unlock-note" id="waitNote">Таймер пошёл — можно продолжать заполнять резюме, он не остановится.</div>
+      </div>
+    </div>
+  </div>
 
   <section class="board-pane">
     <div class="board-header">
@@ -862,8 +919,113 @@ function renderPrintSheet(){
 }
 window.addEventListener('beforeprint', renderPrintSheet);
 ctaLock.addEventListener('click', ()=>{
-  if(added.length >= 2){ window.print(); }
+  if(added.length < 2) return;
+  if(isUnlocked()){ window.print(); }
+  else { openUnlockModal(); }
 });
+
+/* ---------- РАЗБЛОКИРОВКА: поделиться ИЛИ подождать 10 минут ---------- */
+const UNLOCK_KEY = 'resumeSiteUnlocked';
+const WAIT_START_KEY = 'resumeSiteWaitStart';
+const WAIT_MINUTES = 10;
+
+const POST_VARIANTS = [
+  "Нашёл(-шла) сайт, который реально помогает написать резюме, даже если официального опыта работы вообще не было. Показываешь свои хобби и интересы — а он объясняет, какие навыки за ними стоят и куда с этим можно податься. Собрал(-а) первое резюме минут за 10.\n[ссылка на сайт]",
+  "Если тоже не знаешь, что писать в резюме без опыта работы — залетай сюда: [ссылка на сайт]\nПомогает быстро понять, что твои игры/сериалы/хобби — это тоже навыки, просто их надо правильно назвать 🙂",
+  "Резюме без опыта работы — не проблема, если знать как. Нашёл(-шла) сайт, который в этом помогает: [ссылка на сайт]"
+];
+
+function isUnlocked(){
+  try{ return localStorage.getItem(UNLOCK_KEY) === '1'; } catch(e){ return false; }
+}
+function setUnlocked(){
+  try{ localStorage.setItem(UNLOCK_KEY, '1'); } catch(e){}
+}
+
+const unlockOverlay = document.getElementById('unlockOverlay');
+const unlockClose = document.getElementById('unlockClose');
+const postVariantsEl = document.getElementById('postVariants');
+const postLinkInput = document.getElementById('postLinkInput');
+const confirmShareBtn = document.getElementById('confirmShareBtn');
+const shareNote = document.getElementById('shareNote');
+const waitTimerEl = document.getElementById('waitTimer');
+const waitNoteEl = document.getElementById('waitNote');
+
+function openUnlockModal(){
+  unlockOverlay.classList.add('open');
+  renderPostVariants();
+  startOrResumeWaitTimer();
+}
+unlockClose.addEventListener('click', ()=> unlockOverlay.classList.remove('open'));
+unlockOverlay.addEventListener('click', (e)=>{ if(e.target===unlockOverlay) unlockOverlay.classList.remove('open'); });
+
+document.querySelectorAll('.unlock-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.unlock-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const which = tab.dataset.tab;
+    document.getElementById('unlockShareTab').style.display = which==='share' ? 'block' : 'none';
+    document.getElementById('unlockWaitTab').style.display = which==='wait' ? 'block' : 'none';
+  });
+});
+
+function renderPostVariants(){
+  postVariantsEl.innerHTML = POST_VARIANTS.map((text, i)=>`
+    <div class="post-variant">
+      <div class="pv-text">${esc(text)}</div>
+      <button class="pv-copy-btn" data-idx="${i}">📋 Скопировать</button>
+    </div>`).join('');
+  postVariantsEl.querySelectorAll('.pv-copy-btn').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const idx = parseInt(btn.dataset.idx, 10);
+      try{
+        await navigator.clipboard.writeText(POST_VARIANTS[idx]);
+        btn.textContent = '✓ Скопировано';
+        setTimeout(()=>{ btn.textContent = '📋 Скопировать'; }, 1800);
+      } catch(e){
+        btn.textContent = 'Не вышло — выдели текст вручную';
+      }
+    });
+  });
+}
+
+// NB: реальной проверки ссылки на публикацию пока нет (это отдельная задача —
+// маленькая серверная функция, см. README). Сейчас это честная система на доверии:
+// человек публикует пост и подтверждает сам. Проверку подключим отдельно, без
+// изменений в этом UI — просто confirmShareBtn начнёт реально дожидаться ответа сервера.
+confirmShareBtn.addEventListener('click', ()=>{
+  const link = postLinkInput.value.trim();
+  if(!link){ shareNote.textContent = 'Вставь ссылку на пост, пожалуйста.'; shareNote.className='unlock-note'; return; }
+  if(!/^https?:\/\//.test(link)){ shareNote.textContent = 'Похоже, это не похоже на ссылку.'; shareNote.className='unlock-note'; return; }
+  setUnlocked();
+  shareNote.textContent = '✓ Спасибо! Разблокировано — можно скачивать.';
+  shareNote.className = 'unlock-note success';
+  setTimeout(()=>{ unlockOverlay.classList.remove('open'); window.print(); }, 900);
+});
+
+let waitInterval = null;
+function startOrResumeWaitTimer(){
+  let startedAt = parseInt(localStorage.getItem(WAIT_START_KEY) || '0', 10);
+  if(!startedAt){
+    startedAt = Date.now();
+    localStorage.setItem(WAIT_START_KEY, String(startedAt));
+  }
+  if(waitInterval) clearInterval(waitInterval);
+  waitInterval = setInterval(()=>{
+    const elapsedMs = Date.now() - startedAt;
+    const remainingMs = Math.max(0, WAIT_MINUTES*60*1000 - elapsedMs);
+    const min = Math.floor(remainingMs/60000);
+    const sec = Math.floor((remainingMs%60000)/1000);
+    waitTimerEl.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    if(remainingMs <= 0){
+      clearInterval(waitInterval);
+      setUnlocked();
+      waitTimerEl.textContent = '✓ Готово!';
+      waitNoteEl.textContent = 'Можно скачивать — жми ещё раз кнопку внизу.';
+      waitNoteEl.className = 'unlock-note success';
+    }
+  }, 500);
+}
 
 
 function initAll(){
