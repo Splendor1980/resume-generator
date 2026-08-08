@@ -28,7 +28,9 @@
   .data-warning.show{display:block;}
 
   /* LEFT: RESUME */
-  .resume-pane{background:linear-gradient(180deg,#E2E9D8,#D8E1CB); padding:26px 20px; position:sticky; top:0; max-height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .resume-pane{background:linear-gradient(180deg,#E2E9D8,#D8E1CB); position:sticky; top:0; max-height:100vh; border-right:1px solid var(--line); display:flex; flex-direction:column;}
+  .resume-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; padding:26px 20px 16px;}
+  .resume-footer{flex-shrink:0; padding:14px 20px 22px; border-top:1px solid rgba(30,43,34,0.18); background:rgba(216,225,203,0.6); backdrop-filter:blur(2px);}
   .resume-pane .label{font-family:'Space Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); margin-bottom:10px;}
   .sheet{background:var(--white); border-radius:6px; box-shadow:0 14px 34px -18px rgba(30,43,34,0.45); min-height:560px; overflow:hidden;}
   .sheet .placeholder{color:#B7BFB2; font-style:italic;}
@@ -71,9 +73,9 @@
   .two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
   .tag{font-size:11px; background:var(--paper1); padding:4px 8px; border-radius:5px; display:inline-block; margin:0 5px 5px 0;}
 
-  .counter{margin-top:18px; font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-soft); text-align:center;}
+  .counter{margin-top:0; font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-soft); text-align:center;}
   .cta-lock{margin-top:14px; background:var(--coral); color:#fff; text-align:center; padding:13px; border-radius:8px; font-weight:700; font-size:14px; opacity:0.45; pointer-events:none; transition:opacity .2s ease;}
-  .cta-lock.ready{opacity:1;}
+  .cta-lock.ready{opacity:1; pointer-events:auto; cursor:pointer;}
   .cta-lock small{display:block; font-weight:400; font-size:11px; margin-top:3px; opacity:0.9;}
 
   /* RIGHT */
@@ -226,12 +228,16 @@
 <div class="layout">
 
   <aside class="resume-pane">
-    <div class="label">Твоё резюме — собирается прямо сейчас (можно редактировать вручную)</div>
-    <div class="sheet compact" id="sheetContainer"></div>
-    <div class="counter" id="counter">Добавлено идей: 0</div>
-    <button class="cta-lock" id="ctaLock">📄 Скачать PDF / редактировать полностью
-      <small>откроется после 2+ идей — доступно платно, 50 ₽ (пока просто печать браузера)</small>
-    </button>
+    <div class="resume-scroll">
+      <div class="label">Твоё резюме — собирается прямо сейчас (можно редактировать вручную)</div>
+      <div class="sheet compact" id="sheetContainer"></div>
+    </div>
+    <div class="resume-footer">
+      <div class="counter" id="counter">Добавлено идей: 0</div>
+      <button class="cta-lock" id="ctaLock">📄 Скачать PDF / редактировать полностью
+        <small>откроется после 2+ идей — доступно платно, 50 ₽ (пока просто печать браузера)</small>
+      </button>
+    </div>
   </aside>
 
   <section class="board-pane">
