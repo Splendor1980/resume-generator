@@ -1002,18 +1002,52 @@ function renderPostVariants(){
   });
 }
 
-// NB: реальной проверки ссылки на публикацию пока нет (это отдельная задача —
-// маленькая серверная функция, см. README). Сейчас это честная система на доверии:
-// человек публикует пост и подтверждает сам. Проверку подключим отдельно, без
-// изменений в этом UI — просто confirmShareBtn начнёт реально дожидаться ответа сервера.
-confirmShareBtn.addEventListener('click', ()=>{
+// URL функции проверки поста (Yandex Cloud Functions) — вставить после деплоя,
+// см. prototypes/07-verify-post-function.md. Пока пусто — работает старое поведение
+// "на доверии" (см. ветку else ниже), сайт не ломается без задеплоенной функции.
+const VERIFY_FUNCTION_URL = ''; // TODO: вставить URL после деплоя
+
+confirmShareBtn.addEventListener('click', async ()=>{
   const link = postLinkInput.value.trim();
   if(!link){ shareNote.textContent = 'Вставь ссылку на пост, пожалуйста.'; shareNote.className='unlock-note'; return; }
   if(!/^https?:\/\//.test(link)){ shareNote.textContent = 'Похоже, это не похоже на ссылку.'; shareNote.className='unlock-note'; return; }
-  setUnlocked();
-  shareNote.textContent = '✓ Спасибо! Разблокировано — можно скачивать.';
-  shareNote.className = 'unlock-note success';
-  setTimeout(()=>{ unlockOverlay.classList.remove('open'); window.print(); }, 900);
+
+  if(!VERIFY_FUNCTION_URL){
+    // Функция ещё не задеплоена — временное поведение "на доверии", как было раньше
+    console.warn('VERIFY_FUNCTION_URL не настроен — проверка ссылки пропущена (доверительный режим)');
+    setUnlocked();
+    shareNote.textContent = '✓ Спасибо! Разблокировано — можно скачивать.';
+    shareNote.className = 'unlock-note success';
+    setTimeout(()=>{ unlockOverlay.classList.remove('open'); window.print(); }, 900);
+    return;
+  }
+
+  confirmShareBtn.disabled = true;
+  shareNote.textContent = 'Проверяем...';
+  shareNote.className = 'unlock-note';
+
+  try{
+    const res = await fetch(VERIFY_FUNCTION_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({link})
+    });
+    const data = await res.json();
+    if(data.verified){
+      setUnlocked();
+      shareNote.textContent = '✓ Спасибо! Разблокировано — можно скачивать.';
+      shareNote.className = 'unlock-note success';
+      setTimeout(()=>{ unlockOverlay.classList.remove('open'); window.print(); }, 900);
+    } else {
+      shareNote.textContent = data.reason || 'Не удалось подтвердить пост — проверь ссылку.';
+      shareNote.className = 'unlock-note';
+    }
+  } catch(e){
+    shareNote.textContent = 'Не получилось проверить (проблема с сетью) — попробуй ещё раз или выбери вкладку "Подождать 10 минут".';
+    shareNote.className = 'unlock-note';
+  } finally {
+    confirmShareBtn.disabled = false;
+  }
 });
 
 let waitInterval = null;
