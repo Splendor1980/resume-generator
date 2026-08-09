@@ -60,6 +60,9 @@
   .field-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;}
   .reset-btn{font-family:'Space Mono',monospace; font-size:10px; background:none; border:none; color:var(--ink-soft); cursor:pointer; text-decoration:underline; padding:0;}
   .reset-btn:hover{color:var(--coral-deep);}
+  .editable-wrap{position:relative;}
+  .editable-wrap.locked .field-textarea{filter:blur(5px); user-select:none;}
+  .lock-overlay-inline{position:absolute; left:0; right:0; top:24px; bottom:0; display:flex; align-items:center; justify-content:center; text-align:center; font-size:11.5px; font-weight:700; color:var(--ink); background:rgba(255,248,236,0.55); border-radius:6px; padding:8px; line-height:1.4;}
   .check-item{font-size:13px; margin-bottom:8px; display:flex; gap:7px;}
   .footnote{margin-top:auto; padding-top:12px; border-top:1px dashed var(--line); font-size:11px; color:var(--ink-soft);}
 
@@ -103,6 +106,7 @@
   .unlock-note{font-size:12px; color:var(--ink-soft); margin-top:10px; text-align:center; min-height:16px;}
   .unlock-note.success{color:#3D7A3D; font-weight:700;}
   .wait-timer{font-family:'Space Mono',monospace; font-size:38px; font-weight:700; text-align:center; color:var(--coral-deep); margin:18px 0 6px;}
+  .unlock-footnote{font-size:11px; color:var(--ink-soft); text-align:center; margin:16px 0 0; padding-top:14px; border-top:1px solid var(--line);}
 
   /* RIGHT */
   .board-pane{padding:32px 28px 60px; position:relative;}
@@ -267,33 +271,42 @@
     </div>
   </aside>
 
-  <!-- Модалка выбора: поделиться или просто подождать — мягкая механика, не жёсткий пейволл -->
+  <!-- Модалка выбора: три уровня скорости — оплата/пост/бесплатное ожидание -->
   <div class="unlock-overlay" id="unlockOverlay">
     <div class="unlock-modal">
       <button class="unlock-close" id="unlockClose">✕</button>
       <div class="unlock-eyebrow">пока сайт тестовый и бесплатный</div>
       <h3>Секунду, прежде чем скачать 🙂</h3>
-      <p class="unlock-sub">Мы растём только благодаря вам — спасибо, что помогаете другим таким же ребятам найти первую работу. Выбирай, как удобнее — оба варианта работают одинаково честно.</p>
+      <p class="unlock-sub">Мы растём только благодаря вам — спасибо, что помогаете другим таким же ребятам найти первую работу. Выбирай, как удобнее.</p>
 
       <div class="unlock-tabs">
-        <button class="unlock-tab active" data-tab="share">Поделиться и скачать сразу</button>
-        <button class="unlock-tab" data-tab="wait">Просто подождать 10 минут</button>
+        <button class="unlock-tab" data-tab="pay">Оплатить 50 ₽ — сразу</button>
+        <button class="unlock-tab active" data-tab="share">Поделиться — через 10 минут</button>
+        <button class="unlock-tab" data-tab="wait">Бесплатно — через 10 часов</button>
+      </div>
+
+      <div id="unlockPayTab" class="unlock-tab-content" style="display:none;">
+        <p class="unlock-hint">Оплата пока не подключена — сайт в тестовом режиме. Когда появится, доступ будет открываться сразу после оплаты.</p>
+        <button class="unlock-confirm-btn" disabled>🚧 Скоро</button>
       </div>
 
       <div id="unlockShareTab" class="unlock-tab-content">
-        <p class="unlock-hint">Расскажи друзьям, кто тоже не знает, что писать в резюме — текст уже готов, просто скопируй и опубликуй в VK или Дзене:</p>
+        <p class="unlock-hint">Расскажи друзьям, кто тоже не знает, что писать в резюме — текст уже готов, просто скопируй и опубликуй в VK или Дзене. Доступ откроется через 10 минут после подтверждения:</p>
         <div class="post-variants" id="postVariants"></div>
         <p class="unlock-hint" style="margin-top:14px;">Опубликовал(а)? Вставь сюда ссылку на пост:</p>
         <input type="text" id="postLinkInput" class="post-link-input" placeholder="https://vk.com/wall... или https://dzen.ru/...">
-        <button class="unlock-confirm-btn" id="confirmShareBtn">Готово, разблокировать</button>
+        <button class="unlock-confirm-btn" id="confirmShareBtn">Подтвердить</button>
         <div class="unlock-note" id="shareNote"></div>
+        <div class="wait-timer" id="shareTimer" style="display:none;">10:00</div>
       </div>
 
       <div id="unlockWaitTab" class="unlock-tab-content" style="display:none;">
-        <p class="unlock-hint">Тоже сработает — без всяких условий. Можно оставить вкладку открытой или просто зайти позже.</p>
-        <div class="wait-timer" id="waitTimer">10:00</div>
+        <p class="unlock-hint">Совсем без условий — просто подожди. Можно оставить вкладку открытой или зайти позже.</p>
+        <div class="wait-timer" id="waitTimer">10:00:00</div>
         <div class="unlock-note" id="waitNote">Таймер пошёл — можно продолжать заполнять резюме, он не остановится.</div>
       </div>
+
+      <p class="unlock-footnote">Доступ действует 24 часа с момента разблокировки — потом нужно будет открыть заново одним из способов выше.</p>
     </div>
   </div>
 
@@ -621,12 +634,20 @@ function renderRoleResult(){
 
 /* ---------- RESUME: адаптивный + редактируемый шаблон ---------- */
 function aboutTextFrom(list){
-  /* "Мои интересы: X" не требует склонения категорий — раньше было "интересуюсь X"
-     (нужен творительный падеж), из-за чего вылезали ошибки согласования */
-  return 'Мои интересы: ' + list.map(a=>a.category.toLowerCase()).join(', ') + '. Ищу возможность применить это на практике.';
+  /* Skill-first вместо interest-first: раньше вели с "Мои интересы: X" (входящие данные,
+     говорит про меня) — теперь ведём с "Умею: [навык]" (исходящие данные, говорит про
+     ценность для работодателя). Категория идёт вторым, как источник/доказательство, а не
+     как главная мысль. Двоеточие вместо предлогов — не требует склонения категорий. */
+  const allSkills = [...new Set(list.flatMap(a=>a.skills||[]))];
+  const lead = allSkills.slice(0,3).join(', ');
+  const categories = list.map(a=>a.category.toLowerCase()).join(', ');
+  return `Умею: ${lead}${allSkills.length>3 ? ' и другое' : ''}.\nНаработал(а) через: ${categories}.\nГотов(а) применить это в реальной работе.`;
+}
+function expLineFrom(item){
+  return `${(item.skills||[]).join(', ')} — практика: ${item.category}.`;
 }
 function expTextFrom(list){
-  return list.map(a=>`${a.category}: ${(a.skills||[]).join(', ')}`).join('\n');
+  return list.map(expLineFrom).join('\n');
 }
 function bindProfileInputs(container){
   container.querySelectorAll('[data-profile-field]').forEach(inp=>{
@@ -655,9 +676,11 @@ function editableBlock(label, field, autoText, rows){
   const touched = profile[field + 'Touched'];
   const value = touched ? profile[field] : autoText;
   const resetBtn = touched ? `<button class="reset-btn" data-reset-field="${field}">↺ вернуть автотекст</button>` : '';
-  return `<div>
+  const locked = !isUnlocked();
+  return `<div class="editable-wrap${locked ? ' locked' : ''}">
     <div class="field-head"><div class="label-sm" style="margin-bottom:0;">${label}</div>${resetBtn}</div>
-    <textarea class="field-textarea" data-profile-textarea="${field}" rows="${rows}" placeholder="Впиши или дополни текст">${esc(value)}</textarea>
+    <textarea class="field-textarea" data-profile-textarea="${field}" rows="${rows}" placeholder="Впиши или дополни текст"${locked ? ' readonly' : ''}>${esc(value)}</textarea>
+    ${locked ? `<div class="lock-overlay-inline">🔒 Открой полный текст — жми «Скачать PDF» внизу</div>` : ''}
   </div>`;
 }
 
@@ -901,7 +924,7 @@ function renderPrintSheet(){
   if(profile.expTouched){
     if(profile.exp) expHtml = `<div class="p-section"><div class="p-label">Проектный опыт</div><div class="p-text">${esc(profile.exp)}</div></div>`;
   } else if(added.length){
-    const items = added.map(a=>`<div class="p-proj"><b>${esc(a.category)}:</b> ${esc((a.skills||[]).join(', '))}</div>`).join('');
+    const items = added.map(a=>`<div class="p-proj"><b>${esc((a.skills||[]).join(', '))}</b> — практика: ${esc(a.category)}</div>`).join('');
     expHtml = `<div class="p-section"><div class="p-label">Проектный опыт</div>${items}</div>`;
   }
 
@@ -927,7 +950,7 @@ window.addEventListener('beforeprint', ()=>{
     document.getElementById('printSheet').innerHTML = `
       <div style="padding:50mm 25mm; text-align:center; font-family:'Manrope',sans-serif;">
         <div style="font-size:16pt; font-weight:700; margin-bottom:8mm;">Скачивание пока не разблокировано</div>
-        <div style="font-size:12pt; line-height:1.6; color:#4A5A4E;">Вернись на сайт, добавь минимум 2 идеи в резюме и нажми «Скачать PDF» — там можно поделиться постом или просто подождать 10 минут. Это бесплатно.</div>
+        <div style="font-size:12pt; line-height:1.6; color:#4A5A4E;">Вернись на сайт, добавь минимум 2 идеи в резюме и нажми «Скачать PDF» — там есть три варианта: оплатить, поделиться постом или просто подождать. Выбирай, что удобнее.</div>
       </div>`;
   }
 });
@@ -937,10 +960,13 @@ ctaLock.addEventListener('click', ()=>{
   else { openUnlockModal(); }
 });
 
-/* ---------- РАЗБЛОКИРОВКА: поделиться ИЛИ подождать 10 минут ---------- */
-const UNLOCK_KEY = 'resumeSiteUnlocked';
-const WAIT_START_KEY = 'resumeSiteWaitStart';
-const WAIT_MINUTES = 10;
+/* ---------- РАЗБЛОКИРОВКА: оплата (скоро) / пост (10 минут) / бесплатно (10 часов) ---------- */
+const UNLOCK_KEY = 'resumeSiteUnlockedAt';       // теперь хранит timestamp, не просто '1'
+const ACCESS_DURATION_MS = 24 * 60 * 60 * 1000;   // доступ действует 24 часа
+const WAIT_FREE_MS = 10 * 60 * 60 * 1000;         // бесплатно, без действий — 10 часов
+const WAIT_SHARE_MS = 10 * 60 * 1000;             // после подтверждённого поста — 10 минут
+const FREE_WAIT_START_KEY = 'resumeSiteFreeWaitStart';
+const SHARE_WAIT_START_KEY = 'resumeSiteShareWaitStart';
 
 const POST_VARIANTS = [
   "90% резюме школьников и студентов начинаются одинаково: «Опыта работы не имею». А ведь опыт чаще всего есть — просто прячется не в трудовой книжке, а в кружке робототехники, в шахматном клубе или в паблике на 800 подписчиков, который ты ведёшь два года. Этот сайт помогает такое увидеть и грамотно написать — бесплатно, за 10 минут.\n[ссылка на сайт]",
@@ -949,10 +975,14 @@ const POST_VARIANTS = [
 ];
 
 function isUnlocked(){
-  try{ return localStorage.getItem(UNLOCK_KEY) === '1'; } catch(e){ return false; }
+  try{
+    const unlockedAt = parseInt(localStorage.getItem(UNLOCK_KEY) || '0', 10);
+    if(!unlockedAt) return false;
+    return (Date.now() - unlockedAt) < ACCESS_DURATION_MS;
+  } catch(e){ return false; }
 }
 function setUnlocked(){
-  try{ localStorage.setItem(UNLOCK_KEY, '1'); } catch(e){}
+  try{ localStorage.setItem(UNLOCK_KEY, String(Date.now())); } catch(e){}
 }
 
 const unlockOverlay = document.getElementById('unlockOverlay');
@@ -961,13 +991,16 @@ const postVariantsEl = document.getElementById('postVariants');
 const postLinkInput = document.getElementById('postLinkInput');
 const confirmShareBtn = document.getElementById('confirmShareBtn');
 const shareNote = document.getElementById('shareNote');
+const shareTimerEl = document.getElementById('shareTimer');
 const waitTimerEl = document.getElementById('waitTimer');
 const waitNoteEl = document.getElementById('waitNote');
 
 function openUnlockModal(){
   unlockOverlay.classList.add('open');
   renderPostVariants();
-  startOrResumeWaitTimer();
+  startOrResumeFreeTimer();
+  // если пост уже подтверждён и таймер на 10 минут ещё идёт — сразу показываем его
+  if(localStorage.getItem(SHARE_WAIT_START_KEY)) startOrResumeShareTimer();
 }
 unlockClose.addEventListener('click', ()=> unlockOverlay.classList.remove('open'));
 unlockOverlay.addEventListener('click', (e)=>{ if(e.target===unlockOverlay) unlockOverlay.classList.remove('open'); });
@@ -977,6 +1010,7 @@ document.querySelectorAll('.unlock-tab').forEach(tab=>{
     document.querySelectorAll('.unlock-tab').forEach(t=>t.classList.remove('active'));
     tab.classList.add('active');
     const which = tab.dataset.tab;
+    document.getElementById('unlockPayTab').style.display = which==='pay' ? 'block' : 'none';
     document.getElementById('unlockShareTab').style.display = which==='share' ? 'block' : 'none';
     document.getElementById('unlockWaitTab').style.display = which==='wait' ? 'block' : 'none';
   });
@@ -1007,18 +1041,25 @@ function renderPostVariants(){
 // "на доверии" (см. ветку else ниже), сайт не ломается без задеплоенной функции.
 const VERIFY_FUNCTION_URL = ''; // TODO: вставить URL после деплоя
 
+async function handleShareConfirmed(){
+  // Пост подтверждён (проверкой или доверием) — запускаем 10-минутный таймер,
+  // а не открываем доступ мгновенно (раньше было мгновенно, теперь — часть тарифной сетки)
+  localStorage.setItem(SHARE_WAIT_START_KEY, String(Date.now()));
+  confirmShareBtn.style.display = 'none';
+  postLinkInput.style.display = 'none';
+  shareNote.textContent = '✓ Пост подтверждён! Доступ откроется через 10 минут.';
+  shareNote.className = 'unlock-note success';
+  startOrResumeShareTimer();
+}
+
 confirmShareBtn.addEventListener('click', async ()=>{
   const link = postLinkInput.value.trim();
   if(!link){ shareNote.textContent = 'Вставь ссылку на пост, пожалуйста.'; shareNote.className='unlock-note'; return; }
   if(!/^https?:\/\//.test(link)){ shareNote.textContent = 'Похоже, это не похоже на ссылку.'; shareNote.className='unlock-note'; return; }
 
   if(!VERIFY_FUNCTION_URL){
-    // Функция ещё не задеплоена — временное поведение "на доверии", как было раньше
     console.warn('VERIFY_FUNCTION_URL не настроен — проверка ссылки пропущена (доверительный режим)');
-    setUnlocked();
-    shareNote.textContent = '✓ Спасибо! Разблокировано — можно скачивать.';
-    shareNote.className = 'unlock-note success';
-    setTimeout(()=>{ unlockOverlay.classList.remove('open'); window.print(); }, 900);
+    handleShareConfirmed();
     return;
   }
 
@@ -1034,39 +1075,67 @@ confirmShareBtn.addEventListener('click', async ()=>{
     });
     const data = await res.json();
     if(data.verified){
-      setUnlocked();
-      shareNote.textContent = '✓ Спасибо! Разблокировано — можно скачивать.';
-      shareNote.className = 'unlock-note success';
-      setTimeout(()=>{ unlockOverlay.classList.remove('open'); window.print(); }, 900);
+      handleShareConfirmed();
     } else {
       shareNote.textContent = data.reason || 'Не удалось подтвердить пост — проверь ссылку.';
       shareNote.className = 'unlock-note';
+      confirmShareBtn.disabled = false;
     }
   } catch(e){
-    shareNote.textContent = 'Не получилось проверить (проблема с сетью) — попробуй ещё раз или выбери вкладку "Подождать 10 минут".';
+    shareNote.textContent = 'Не получилось проверить (проблема с сетью) — попробуй ещё раз или выбери вкладку "Бесплатно".';
     shareNote.className = 'unlock-note';
-  } finally {
     confirmShareBtn.disabled = false;
   }
 });
 
+function formatHMS(ms){
+  const h = Math.floor(ms/3600000);
+  const m = Math.floor((ms%3600000)/60000);
+  const s = Math.floor((ms%60000)/1000);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function formatMS(ms){
+  const m = Math.floor(ms/60000);
+  const s = Math.floor((ms%60000)/1000);
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+let shareInterval = null;
+function startOrResumeShareTimer(){
+  const startedAt = parseInt(localStorage.getItem(SHARE_WAIT_START_KEY) || '0', 10);
+  if(!startedAt) return;
+  shareTimerEl.style.display = 'block';
+  if(shareInterval) clearInterval(shareInterval);
+  shareInterval = setInterval(()=>{
+    const remainingMs = Math.max(0, WAIT_SHARE_MS - (Date.now() - startedAt));
+    shareTimerEl.textContent = formatMS(remainingMs);
+    if(remainingMs <= 0){
+      clearInterval(shareInterval);
+      setUnlocked();
+      updateResume();
+      localStorage.removeItem(SHARE_WAIT_START_KEY);
+      shareTimerEl.textContent = '✓ Готово!';
+      shareNote.textContent = 'Можно скачивать — жми ещё раз кнопку внизу.';
+      shareNote.className = 'unlock-note success';
+    }
+  }, 500);
+}
+
 let waitInterval = null;
-function startOrResumeWaitTimer(){
-  let startedAt = parseInt(localStorage.getItem(WAIT_START_KEY) || '0', 10);
+function startOrResumeFreeTimer(){
+  let startedAt = parseInt(localStorage.getItem(FREE_WAIT_START_KEY) || '0', 10);
   if(!startedAt){
     startedAt = Date.now();
-    localStorage.setItem(WAIT_START_KEY, String(startedAt));
+    localStorage.setItem(FREE_WAIT_START_KEY, String(startedAt));
   }
   if(waitInterval) clearInterval(waitInterval);
   waitInterval = setInterval(()=>{
-    const elapsedMs = Date.now() - startedAt;
-    const remainingMs = Math.max(0, WAIT_MINUTES*60*1000 - elapsedMs);
-    const min = Math.floor(remainingMs/60000);
-    const sec = Math.floor((remainingMs%60000)/1000);
-    waitTimerEl.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    const remainingMs = Math.max(0, WAIT_FREE_MS - (Date.now() - startedAt));
+    waitTimerEl.textContent = formatHMS(remainingMs);
     if(remainingMs <= 0){
       clearInterval(waitInterval);
       setUnlocked();
+      updateResume();
       waitTimerEl.textContent = '✓ Готово!';
       waitNoteEl.textContent = 'Можно скачивать — жми ещё раз кнопку внизу.';
       waitNoteEl.className = 'unlock-note success';
