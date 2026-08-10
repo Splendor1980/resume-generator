@@ -127,7 +127,10 @@
   .card{background:var(--paper1); border-radius:6px; padding:18px 16px 16px; box-shadow:0 8px 18px -10px rgba(30,43,34,0.3); border:1px solid var(--line); display:flex; flex-direction:column;}
   .card:nth-child(3n+2){background:var(--paper2);}
   .card:nth-child(3n){background:var(--paper3);}
-  .card h3{font-family:'Baloo 2',sans-serif; font-size:16px; margin:0 0 10px; line-height:1.25;}
+  .card-eyebrow{font-family:'Space Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:4px;}
+  .card h3{font-family:'Baloo 2',sans-serif; font-size:16px; margin:0 0 8px; line-height:1.25;}
+  .card-bullet{font-size:12.5px; line-height:1.5; color:var(--ink); margin:0 0 10px;}
+  .employer-value{font-size:11.5px; line-height:1.45; background:rgba(255,255,255,0.55); border-radius:6px; padding:8px 10px; margin-bottom:10px; color:var(--ink);}
   .tag-row{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;}
   .skill-tag{font-family:'Space Mono',monospace; font-size:10.5px; padding:3px 8px; border-radius:5px; background:rgba(30,43,34,0.07); color:var(--ink-soft);}
   .roles{font-size:12.5px; margin:0 0 12px; list-style:none; padding:0;}
@@ -527,9 +530,13 @@ function renderBoard(){
   if(filtered.length===0){ boardEl.innerHTML = `<div class="empty-state">Ничего не нашлось по этим тегам.</div>`; return; }
   boardEl.innerHTML = filtered.map(item=>{
     const isAdded = added.find(a=>a.id===item.id);
+    const tags = item.skills_reframed && item.skills_reframed.length ? item.skills_reframed : (item.skills||[]);
     return `<div class="card">
-      <h3>${item.category}</h3>
-      <div class="tag-row">${(item.skills||[]).map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+      <div class="card-eyebrow">${item.category}</div>
+      <h3>${item.activity_title || item.category}</h3>
+      ${item.resume_bullet ? `<p class="card-bullet">${item.resume_bullet}</p>` : ''}
+      <div class="tag-row">${tags.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+      ${item.employer_value ? `<div class="employer-value">💼 ${item.employer_value}</div>` : ''}
       <ul class="roles">${(item.roles||[]).map(r=>`<li>${r}</li>`).join('')}</ul>
       ${researchBlockHtml(item)}
       <button class="add-btn${isAdded?' added':''}" data-id="${item.id}">${isAdded?'✓ Добавлено (нажми, чтобы убрать)':'+ Добавить в резюме'}</button>
@@ -604,13 +611,20 @@ function renderRoleResult(){
   if(matching.length===0){ roleResultEl.innerHTML = `<div class="empty-state">Пока нет связок для этой роли.</div>`; return; }
 
   const skillMap = new Map();
-  matching.forEach(item=>{ (item.skills||[]).forEach(s=>{ if(!skillMap.has(s)) skillMap.set(s, item); }); });
+  matching.forEach(item=>{
+    const reframed = (item.skills_reframed && item.skills_reframed.length) ? item.skills_reframed : (item.skills||[]);
+    reframed.forEach(s=>{ if(!skillMap.has(s)) skillMap.set(s, item); });
+  });
 
   roleResultEl.innerHTML = [...skillMap.entries()].map(([skill,srcItem])=>{
     const isHave = haveSkills.has(skill);
     return `<div class="skill-check${isHave?' have':''}" data-skill="${skill}" data-item="${srcItem.id}">
       <div class="box">${isHave?'✓':''}</div>
-      <div class="txt"><div class="sk">${skill}</div><div class="src">Обычно есть у тех, кто увлекается: ${srcItem.category.toLowerCase()}</div></div>
+      <div class="txt">
+        <div class="sk">${skill}</div>
+        <div class="src">Обычно есть у тех, кто увлекается: ${srcItem.category.toLowerCase()}</div>
+        ${srcItem.employer_value ? `<div class="src" style="margin-top:3px;">💼 ${srcItem.employer_value}</div>` : ''}
+      </div>
     </div>`;
   }).join('');
 
@@ -634,17 +648,19 @@ function renderRoleResult(){
 
 /* ---------- RESUME: адаптивный + редактируемый шаблон ---------- */
 function aboutTextFrom(list){
-  /* Skill-first вместо interest-first: раньше вели с "Мои интересы: X" (входящие данные,
-     говорит про меня) — теперь ведём с "Умею: [навык]" (исходящие данные, говорит про
-     ценность для работодателя). Категория идёт вторым, как источник/доказательство, а не
-     как главная мысль. Двоеточие вместо предлогов — не требует склонения категорий. */
-  const allSkills = [...new Set(list.flatMap(a=>a.skills||[]))];
-  const lead = allSkills.slice(0,3).join(', ');
-  const categories = list.map(a=>a.category.toLowerCase()).join(', ');
-  return `Умею: ${lead}${allSkills.length>3 ? ' и другое' : ''}.\nНаработал(а) через: ${categories}.\nГотов(а) применить это в реальной работе.`;
+  /* Новая версия (v4 базы): используем about_snippet, подготовленный по методологии
+     Ramit Sethi / Laszlo Bock / Ильяхов — вместо алгоритмической формулы "Умею: X.
+     Наработал(а) через: Y". Формула была нашей временной заплаткой; теперь у каждой
+     карточки есть осмысленно написанная фраза. Собираем 2-3 сниппета в связный абзац. */
+  const snippets = list.map(a => a.about_snippet).filter(Boolean).slice(0,3);
+  if(snippets.length === 0){
+    // fallback на случай если у записи почему-то нет about_snippet (не должно происходить в v4)
+    return 'Умею: ' + [...new Set(list.flatMap(a=>a.skills||[]))].slice(0,3).join(', ') + '.';
+  }
+  return snippets.join('\n');
 }
 function expLineFrom(item){
-  return `${(item.skills||[]).join(', ')} — практика: ${item.category}.`;
+  return item.resume_bullet || `${(item.skills||[]).join(', ')} — практика: ${item.category}.`;
 }
 function expTextFrom(list){
   return list.map(expLineFrom).join('\n');
@@ -924,7 +940,7 @@ function renderPrintSheet(){
   if(profile.expTouched){
     if(profile.exp) expHtml = `<div class="p-section"><div class="p-label">Проектный опыт</div><div class="p-text">${esc(profile.exp)}</div></div>`;
   } else if(added.length){
-    const items = added.map(a=>`<div class="p-proj"><b>${esc((a.skills||[]).join(', '))}</b> — практика: ${esc(a.category)}</div>`).join('');
+    const items = added.map(a=>`<div class="p-proj"><b>${esc(a.activity_title || a.category)}</b> — ${esc(a.resume_bullet || (a.skills||[]).join(', '))}</div>`).join('');
     expHtml = `<div class="p-section"><div class="p-label">Проектный опыт</div>${items}</div>`;
   }
 
