@@ -107,6 +107,8 @@
   .unlock-note.success{color:#3D7A3D; font-weight:700;}
   .wait-timer{font-family:'Space Mono',monospace; font-size:38px; font-weight:700; text-align:center; color:var(--coral-deep); margin:18px 0 6px;}
   .unlock-footnote{font-size:11px; color:var(--ink-soft); text-align:center; margin:16px 0 0; padding-top:14px; border-top:1px solid var(--line);}
+  .pre-print-steps{display:flex; flex-direction:column; gap:10px; margin:18px 0;}
+  .pre-print-step{background:var(--paper1); border:1px solid var(--line); border-radius:8px; padding:12px 14px; font-size:13.5px; text-align:left; line-height:1.4;}
 
   /* RIGHT */
   .board-pane{padding:32px 28px 60px; position:relative;}
@@ -270,46 +272,55 @@
       <button class="cta-lock" id="ctaLock">📄 Скачать PDF
         <small>откроется после 2+ идей</small>
       </button>
-      <div class="pdf-hint"><b>Чтобы сохранить файл:</b> в открывшемся окне печати в списке принтеров выбери «Сохранить как PDF» — и уже там нажми «Сохранить». Если сверху/снизу листа увидишь дату или ссылку — сними галочку «Заголовки и нижние колонтитулы» (обычно в разделе «Ещё настройки»).</div>
+      <div class="pdf-hint">Файл сохраняется через системное окно печати браузера — подробности покажем перед открытием.</div>
     </div>
   </aside>
 
-  <!-- Модалка выбора: три уровня скорости — оплата/пост/бесплатное ожидание -->
+  <!-- Модалка выбора: два равноценных пути — мягкая механика для пробного запуска -->
   <div class="unlock-overlay" id="unlockOverlay">
     <div class="unlock-modal">
       <button class="unlock-close" id="unlockClose">✕</button>
       <div class="unlock-eyebrow">пока сайт тестовый и бесплатный</div>
       <h3>Секунду, прежде чем скачать 🙂</h3>
-      <p class="unlock-sub">Мы растём только благодаря вам — спасибо, что помогаете другим таким же ребятам найти первую работу. Выбирай, как удобнее.</p>
+      <p class="unlock-sub">Мы растём только благодаря вам — спасибо, что помогаете другим таким же ребятам найти первую работу. Выбирай, как удобнее — оба варианта работают одинаково честно.</p>
 
       <div class="unlock-tabs">
-        <button class="unlock-tab" data-tab="pay">Оплатить 50 ₽ — сразу</button>
-        <button class="unlock-tab active" data-tab="share">Поделиться — через 10 минут</button>
-        <button class="unlock-tab" data-tab="wait">Бесплатно — через 10 часов</button>
-      </div>
-
-      <div id="unlockPayTab" class="unlock-tab-content" style="display:none;">
-        <p class="unlock-hint">Оплата пока не подключена — сайт в тестовом режиме. Когда появится, доступ будет открываться сразу после оплаты.</p>
-        <button class="unlock-confirm-btn" disabled>🚧 Скоро</button>
+        <button class="unlock-tab active" data-tab="share">Поделиться и скачать сразу</button>
+        <button class="unlock-tab" data-tab="wait">Просто подождать 10 минут</button>
       </div>
 
       <div id="unlockShareTab" class="unlock-tab-content">
-        <p class="unlock-hint">Расскажи друзьям, кто тоже не знает, что писать в резюме — текст уже готов, просто скопируй и опубликуй в VK или Дзене. Доступ откроется через 10 минут после подтверждения:</p>
+        <p class="unlock-hint">Расскажи друзьям, кто тоже не знает, что писать в резюме — текст уже готов, просто скопируй и опубликуй в VK или Дзене:</p>
         <div class="post-variants" id="postVariants"></div>
         <p class="unlock-hint" style="margin-top:14px;">Опубликовал(а)? Вставь сюда ссылку на пост:</p>
         <input type="text" id="postLinkInput" class="post-link-input" placeholder="https://vk.com/wall... или https://dzen.ru/...">
-        <button class="unlock-confirm-btn" id="confirmShareBtn">Подтвердить</button>
+        <button class="unlock-confirm-btn" id="confirmShareBtn">Готово, разблокировать</button>
         <div class="unlock-note" id="shareNote"></div>
-        <div class="wait-timer" id="shareTimer" style="display:none;">10:00</div>
       </div>
 
       <div id="unlockWaitTab" class="unlock-tab-content" style="display:none;">
-        <p class="unlock-hint">Совсем без условий — просто подожди. Можно оставить вкладку открытой или зайти позже.</p>
-        <div class="wait-timer" id="waitTimer">10:00:00</div>
+        <p class="unlock-hint">Тоже сработает — без всяких условий. Можно оставить вкладку открытой или просто зайти позже.</p>
+        <div class="wait-timer" id="waitTimer">10:00</div>
         <div class="unlock-note" id="waitNote">Таймер пошёл — можно продолжать заполнять резюме, он не остановится.</div>
       </div>
 
       <p class="unlock-footnote">Доступ действует 24 часа с момента разблокировки — потом нужно будет открыть заново одним из способов выше.</p>
+    </div>
+  </div>
+
+  <!-- Пункт 4 фидбека: подсказку про "Сохранить как PDF" легко пропустить, если это мелкий
+       текст под кнопкой. Делаем это обязательным шагом — последнее, что видно перед тем,
+       как откроется системное окно печати. -->
+  <div class="unlock-overlay" id="prePrintOverlay">
+    <div class="unlock-modal" style="max-width:420px; text-align:center;">
+      <div class="unlock-eyebrow">последний шаг</div>
+      <h3>Сейчас откроется окно печати браузера</h3>
+      <div class="pre-print-steps">
+        <div class="pre-print-step">1️⃣ В списке принтеров выбери <b>«Сохранить как PDF»</b></div>
+        <div class="pre-print-step">2️⃣ Нажми <b>«Сохранить»</b> — и файл у тебя на компьютере</div>
+      </div>
+      <p class="unlock-hint" style="margin-top:10px;">Если сверху/снизу листа появится дата или ссылка — сними галочку «Заголовки и нижние колонтитулы» (обычно в разделе «Ещё настройки»).</p>
+      <button class="unlock-confirm-btn" id="prePrintGoBtn">Понял, открыть окно печати →</button>
     </div>
   </div>
 
@@ -692,11 +703,13 @@ function editableBlock(label, field, autoText, rows){
   const touched = profile[field + 'Touched'];
   const value = touched ? profile[field] : autoText;
   const resetBtn = touched ? `<button class="reset-btn" data-reset-field="${field}">↺ вернуть автотекст</button>` : '';
-  const locked = !isUnlocked();
-  return `<div class="editable-wrap${locked ? ' locked' : ''}">
+  // Блюр/readonly до разблокировки убраны по решению: защита от копирования технически
+  // слабая и вредная (мешает ATS, не даёт исправить ошибки, создаёт "кота в мешке" —
+  // пользователь не видит, что получает, пока не выполнит условие). Копирование — на
+  // совести пользователя, кнопка "Скачать PDF" остаётся единственной точкой разблокировки.
+  return `<div class="editable-wrap">
     <div class="field-head"><div class="label-sm" style="margin-bottom:0;">${label}</div>${resetBtn}</div>
-    <textarea class="field-textarea" data-profile-textarea="${field}" rows="${rows}" placeholder="Впиши или дополни текст"${locked ? ' readonly' : ''}>${esc(value)}</textarea>
-    ${locked ? `<div class="lock-overlay-inline">🔒 Открой полный текст — жми «Скачать PDF» внизу</div>` : ''}
+    <textarea class="field-textarea" data-profile-textarea="${field}" rows="${rows}" placeholder="Впиши или дополни текст">${esc(value)}</textarea>
   </div>`;
 }
 
@@ -972,17 +985,15 @@ window.addEventListener('beforeprint', ()=>{
 });
 ctaLock.addEventListener('click', ()=>{
   if(added.length < 2) return;
-  if(isUnlocked()){ window.print(); }
+  if(isUnlocked()){ showPrePrintInstruction(); }
   else { openUnlockModal(); }
 });
 
-/* ---------- РАЗБЛОКИРОВКА: оплата (скоро) / пост (10 минут) / бесплатно (10 часов) ---------- */
-const UNLOCK_KEY = 'resumeSiteUnlockedAt';       // теперь хранит timestamp, не просто '1'
+/* ---------- РАЗБЛОКИРОВКА: поделиться (сразу) или подождать 10 минут — простая версия для пробного запуска ---------- */
+const UNLOCK_KEY = 'resumeSiteUnlockedAt';       // timestamp — нужен для 24-часового срока действия
 const ACCESS_DURATION_MS = 24 * 60 * 60 * 1000;   // доступ действует 24 часа
-const WAIT_FREE_MS = 10 * 60 * 60 * 1000;         // бесплатно, без действий — 10 часов
-const WAIT_SHARE_MS = 10 * 60 * 1000;             // после подтверждённого поста — 10 минут
-const FREE_WAIT_START_KEY = 'resumeSiteFreeWaitStart';
-const SHARE_WAIT_START_KEY = 'resumeSiteShareWaitStart';
+const WAIT_MS = 10 * 60 * 1000;                   // бесплатное ожидание — 10 минут
+const WAIT_START_KEY = 'resumeSiteWaitStart';
 
 const POST_VARIANTS = [
   "90% резюме школьников и студентов начинаются одинаково: «Опыта работы не имею». А ведь опыт чаще всего есть — просто прячется не в трудовой книжке, а в кружке робототехники, в шахматном клубе или в паблике на 800 подписчиков, который ты ведёшь два года. Этот сайт помогает такое увидеть и грамотно написать — бесплатно, за 10 минут.\n[ссылка на сайт]",
@@ -1007,16 +1018,13 @@ const postVariantsEl = document.getElementById('postVariants');
 const postLinkInput = document.getElementById('postLinkInput');
 const confirmShareBtn = document.getElementById('confirmShareBtn');
 const shareNote = document.getElementById('shareNote');
-const shareTimerEl = document.getElementById('shareTimer');
 const waitTimerEl = document.getElementById('waitTimer');
 const waitNoteEl = document.getElementById('waitNote');
 
 function openUnlockModal(){
   unlockOverlay.classList.add('open');
   renderPostVariants();
-  startOrResumeFreeTimer();
-  // если пост уже подтверждён и таймер на 10 минут ещё идёт — сразу показываем его
-  if(localStorage.getItem(SHARE_WAIT_START_KEY)) startOrResumeShareTimer();
+  startOrResumeWaitTimer();
 }
 unlockClose.addEventListener('click', ()=> unlockOverlay.classList.remove('open'));
 unlockOverlay.addEventListener('click', (e)=>{ if(e.target===unlockOverlay) unlockOverlay.classList.remove('open'); });
@@ -1026,7 +1034,6 @@ document.querySelectorAll('.unlock-tab').forEach(tab=>{
     document.querySelectorAll('.unlock-tab').forEach(t=>t.classList.remove('active'));
     tab.classList.add('active');
     const which = tab.dataset.tab;
-    document.getElementById('unlockPayTab').style.display = which==='pay' ? 'block' : 'none';
     document.getElementById('unlockShareTab').style.display = which==='share' ? 'block' : 'none';
     document.getElementById('unlockWaitTab').style.display = which==='wait' ? 'block' : 'none';
   });
@@ -1057,15 +1064,11 @@ function renderPostVariants(){
 // "на доверии" (см. ветку else ниже), сайт не ломается без задеплоенной функции.
 const VERIFY_FUNCTION_URL = ''; // TODO: вставить URL после деплоя
 
-async function handleShareConfirmed(){
-  // Пост подтверждён (проверкой или доверием) — запускаем 10-минутный таймер,
-  // а не открываем доступ мгновенно (раньше было мгновенно, теперь — часть тарифной сетки)
-  localStorage.setItem(SHARE_WAIT_START_KEY, String(Date.now()));
-  confirmShareBtn.style.display = 'none';
-  postLinkInput.style.display = 'none';
-  shareNote.textContent = '✓ Пост подтверждён! Доступ откроется через 10 минут.';
-  shareNote.className = 'unlock-note success';
-  startOrResumeShareTimer();
+function grantAccessAndPrint(){
+  setUnlocked();
+  updateResume();
+  unlockOverlay.classList.remove('open');
+  showPrePrintInstruction();
 }
 
 confirmShareBtn.addEventListener('click', async ()=>{
@@ -1075,7 +1078,9 @@ confirmShareBtn.addEventListener('click', async ()=>{
 
   if(!VERIFY_FUNCTION_URL){
     console.warn('VERIFY_FUNCTION_URL не настроен — проверка ссылки пропущена (доверительный режим)');
-    handleShareConfirmed();
+    shareNote.textContent = '✓ Спасибо! Разблокировано.';
+    shareNote.className = 'unlock-note success';
+    setTimeout(grantAccessAndPrint, 700);
     return;
   }
 
@@ -1091,73 +1096,63 @@ confirmShareBtn.addEventListener('click', async ()=>{
     });
     const data = await res.json();
     if(data.verified){
-      handleShareConfirmed();
+      shareNote.textContent = '✓ Спасибо! Разблокировано.';
+      shareNote.className = 'unlock-note success';
+      setTimeout(grantAccessAndPrint, 700);
     } else {
       shareNote.textContent = data.reason || 'Не удалось подтвердить пост — проверь ссылку.';
       shareNote.className = 'unlock-note';
       confirmShareBtn.disabled = false;
     }
   } catch(e){
-    shareNote.textContent = 'Не получилось проверить (проблема с сетью) — попробуй ещё раз или выбери вкладку "Бесплатно".';
+    shareNote.textContent = 'Не получилось проверить (проблема с сетью) — попробуй ещё раз или выбери вкладку "Просто подождать".';
     shareNote.className = 'unlock-note';
     confirmShareBtn.disabled = false;
   }
 });
 
-function formatHMS(ms){
-  const h = Math.floor(ms/3600000);
-  const m = Math.floor((ms%3600000)/60000);
-  const s = Math.floor((ms%60000)/1000);
-  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
 function formatMS(ms){
   const m = Math.floor(ms/60000);
   const s = Math.floor((ms%60000)/1000);
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
-let shareInterval = null;
-function startOrResumeShareTimer(){
-  const startedAt = parseInt(localStorage.getItem(SHARE_WAIT_START_KEY) || '0', 10);
-  if(!startedAt) return;
-  shareTimerEl.style.display = 'block';
-  if(shareInterval) clearInterval(shareInterval);
-  shareInterval = setInterval(()=>{
-    const remainingMs = Math.max(0, WAIT_SHARE_MS - (Date.now() - startedAt));
-    shareTimerEl.textContent = formatMS(remainingMs);
+let waitInterval = null;
+function startOrResumeWaitTimer(){
+  let startedAt = parseInt(localStorage.getItem(WAIT_START_KEY) || '0', 10);
+  if(!startedAt){
+    startedAt = Date.now();
+    localStorage.setItem(WAIT_START_KEY, String(startedAt));
+  }
+  if(waitInterval) clearInterval(waitInterval);
+  waitInterval = setInterval(()=>{
+    const remainingMs = Math.max(0, WAIT_MS - (Date.now() - startedAt));
+    waitTimerEl.textContent = formatMS(remainingMs);
     if(remainingMs <= 0){
-      clearInterval(shareInterval);
-      setUnlocked();
-      updateResume();
-      localStorage.removeItem(SHARE_WAIT_START_KEY);
-      shareTimerEl.textContent = '✓ Готово!';
-      shareNote.textContent = 'Можно скачивать — жми ещё раз кнопку внизу.';
-      shareNote.className = 'unlock-note success';
+      clearInterval(waitInterval);
+      localStorage.removeItem(WAIT_START_KEY);
+      waitTimerEl.textContent = '✓ Готово!';
+      waitNoteEl.textContent = 'Открываем...';
+      waitNoteEl.className = 'unlock-note success';
+      setTimeout(grantAccessAndPrint, 500);
     }
   }, 500);
 }
 
-let waitInterval = null;
-function startOrResumeFreeTimer(){
-  let startedAt = parseInt(localStorage.getItem(FREE_WAIT_START_KEY) || '0', 10);
-  if(!startedAt){
-    startedAt = Date.now();
-    localStorage.setItem(FREE_WAIT_START_KEY, String(startedAt));
-  }
-  if(waitInterval) clearInterval(waitInterval);
-  waitInterval = setInterval(()=>{
-    const remainingMs = Math.max(0, WAIT_FREE_MS - (Date.now() - startedAt));
-    waitTimerEl.textContent = formatHMS(remainingMs);
-    if(remainingMs <= 0){
-      clearInterval(waitInterval);
-      setUnlocked();
-      updateResume();
-      waitTimerEl.textContent = '✓ Готово!';
-      waitNoteEl.textContent = 'Можно скачивать — жми ещё раз кнопку внизу.';
-      waitNoteEl.className = 'unlock-note success';
-    }
-  }, 500);
+/* ---------- Пункт 4 фидбека: подсказка "Сохранить как PDF" терялась под кнопкой —
+   теперь это обязательный промежуточный шаг прямо перед вызовом печати, а не мелкий
+   текст сбоку, который легко пропустить ---------- */
+const prePrintOverlay = document.getElementById('prePrintOverlay');
+const prePrintGoBtn = document.getElementById('prePrintGoBtn');
+function showPrePrintInstruction(){
+  prePrintOverlay.classList.add('open');
 }
+prePrintGoBtn.addEventListener('click', ()=>{
+  prePrintOverlay.classList.remove('open');
+  window.print();
+});
+
+
 
 
 function initAll(){
